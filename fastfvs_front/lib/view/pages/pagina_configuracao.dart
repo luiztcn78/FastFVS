@@ -9,11 +9,11 @@ class PaginaConfiguracao extends StatelessWidget {
     return PaginaBase(
       paginaAberta: 2,
       body: Container(
-        color: const Color.fromARGB(255, 255, 255, 255),
+        color: Theme.of(context).colorScheme.secondary,
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Padding(
                 padding: EdgeInsets.only(left: 20, top: 20),
                 child: Row(
@@ -22,7 +22,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Text(
                       "DarkMode",
                       style: TextStyle(
-                        color: Color.fromRGBO(3, 1, 0, 1),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -31,8 +31,8 @@ class PaginaConfiguracao extends StatelessWidget {
                     Switch(
                       value: true,
                       onChanged: null,
-                      activeColor: Colors.white,
-                      activeTrackColor: Color.fromRGBO(3, 1, 0, 1),
+                      activeColor: Theme.of(context).colorScheme.secondary,
+                      activeTrackColor: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ],
                 ),
@@ -47,7 +47,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Text(
                       "      Perfil",
                       style: TextStyle(
-                        color: Color.fromRGBO(3, 1, 0, 1),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -56,7 +56,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Icon(
                       Icons.account_circle_outlined,
                       size: 24.0,
-                      color: Color.fromRGBO(3, 1, 0, 1),
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ],
                 ),
@@ -69,7 +69,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Text(
                       "      Trocar de conta",
                       style: TextStyle(
-                        color: Color.fromRGBO(3, 1, 0, 1),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -78,7 +78,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Icon(
                       Icons.switch_account_outlined,
                       size: 24.0,
-                      color: Color.fromRGBO(3, 1, 0, 1),
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ],
                 ),
@@ -91,7 +91,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Text(
                       "      Excluir conta",
                       style: TextStyle(
-                        color: Color.fromRGBO(3, 1, 0, 1),
+                        color: Theme.of(context).colorScheme.onSecondary,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -100,7 +100,7 @@ class PaginaConfiguracao extends StatelessWidget {
                     Icon(
                       Icons.delete_outline,
                       size: 24.0,
-                      color: Color.fromRGBO(3, 1, 0, 1),
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ],
                 ),

@@ -9,7 +9,7 @@ class PaginaLerQrcode extends StatelessWidget {
     return PaginaBase(
       paginaAberta: 1,
       body: Container(
-        color: const Color.fromARGB(255, 255, 255, 255),
+        color: Theme.of(context).colorScheme.secondary,
         child: Center(
           child: Container(
             width: 400,
