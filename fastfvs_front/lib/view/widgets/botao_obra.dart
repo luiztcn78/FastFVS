@@ -4,9 +4,8 @@ import 'package:flutter/material.dart';
 
 class botao_obra extends StatelessWidget{
   final String nome;
-  final Function(Widget) abrirPagina;
 
-  const botao_obra({required this.abrirPagina, required this.nome, super.key});
+  const botao_obra({required this.nome, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +19,7 @@ class botao_obra extends StatelessWidget{
             borderRadius: BorderRadius.all(Radius.circular(20))
           )
         ),
-        onPressed:() => abrirPagina(PaginaInfoObra()), 
+        onPressed:() => PaginaInfoObra(), 
         child: Text(
                 nome, 
                 textAlign: TextAlign.center, 

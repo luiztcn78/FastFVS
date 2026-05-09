@@ -3,8 +3,7 @@ import 'package:fastfvs_front/view/widgets/botao_obra.dart';
 import 'package:flutter/material.dart';
 
 class BarraPesquisar extends StatefulWidget{
-  final Function(Widget) abrirPagina;
-  const BarraPesquisar({required this.abrirPagina, super.key});
+  const BarraPesquisar({super.key});
 
   @override
   State<BarraPesquisar> createState() => BarraPesquisarState();
@@ -44,7 +43,7 @@ class BarraPesquisarState extends State<BarraPesquisar> {
           shrinkWrap: true,
           itemCount: lista_teste_filtrada.length,
           itemBuilder: (context, index) {
-            return botao_obra(abrirPagina: widget.abrirPagina, nome: lista_teste_filtrada[index]);
+            return botao_obra(nome: lista_teste_filtrada[index]);
           },
         ),
       ],
