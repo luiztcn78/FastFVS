@@ -10,7 +10,7 @@ class BarraPesquisar extends StatefulWidget{
 }
 
 class BarraPesquisarState extends State<BarraPesquisar> {
-  List<String> lista_teste = ["x", 'y', 'z'];
+  List<String> lista_teste = ["x", 'y', 'z', "a", 'b', 'c'];
   List<String> lista_teste_filtrada = [];
 
   @override
@@ -29,22 +29,44 @@ class BarraPesquisarState extends State<BarraPesquisar> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            Icon(Icons.search),
-            Expanded(
-              child: TextField(
-                onChanged: filtrar,
-              )
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).size.width*0.07, 
+            top: 10.0, 
+            left: MediaQuery.of(context).size.width*0.07, 
+            right: MediaQuery.of(context).size.width*0.07),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onPrimary,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: Theme.of(context).colorScheme.primary)
             ),
-          ]
+            child: Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Icon(Icons.search),
+                ),
+                Expanded(
+                  child: TextField(
+                    onChanged: filtrar,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Buscar Obras"
+                    ),
+                  )
+                ),
+              ]
+            ),
+          ),
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: lista_teste_filtrada.length,
-          itemBuilder: (context, index) {
-            return botao_obra(nome: lista_teste_filtrada[index]);
-          },
+        Expanded(
+          child: ListView.builder(
+            itemCount: lista_teste_filtrada.length,
+            itemBuilder: (context, index) {
+              return botao_obra(nome: lista_teste_filtrada[index]);
+            },
+          ),
         ),
       ],
     );

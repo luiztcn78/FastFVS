@@ -13,7 +13,19 @@ class PaginaMinhasObras extends StatelessWidget{
       body: Center(
         child: Column(
           children: [
-            BarraPesquisar(),
+            SizedBox(height: 20,),
+            Padding(
+              padding: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.1),
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Text("Minhas Obras", 
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontSize: MediaQuery.of(context).size.width*0.06,
+                ),
+              )
+            ),
+            ),
+            Expanded(child: BarraPesquisar()),
           ],
         ),
       ),

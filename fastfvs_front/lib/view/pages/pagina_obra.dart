@@ -1,11 +1,21 @@
+import 'package:fastfvs_front/view/pages/pagina_base.dart';
+import 'package:fastfvs_front/view/widgets/informacao_obra.dart';
 import 'package:flutter/material.dart';
 
-class Obra extends StatelessWidget{
-  const Obra({super.key});
+class PaginaObra extends StatelessWidget{
+  const PaginaObra({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+    return PaginaBase(
+      paginaAberta: 0,
+      body: Column(
+        children: [
+          Container(
+            child: InformacaoObra(),
+          ),
+        ],
+      ),
+    );
   }
 }

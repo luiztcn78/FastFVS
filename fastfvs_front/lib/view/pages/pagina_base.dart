@@ -38,6 +38,7 @@ class PaginaBaseState extends State<PaginaBase> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text("FastFVS",style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
+        titleSpacing: -30,
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.account_circle, size: iconTamanho, color: Theme.of(context).colorScheme.onPrimary,))
         ],

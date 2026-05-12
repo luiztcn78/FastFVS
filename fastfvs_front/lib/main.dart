@@ -1,8 +1,8 @@
 import 'package:fastfvs_front/config/theme_light.dart';
-import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
 import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
 import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
+import 'package:fastfvs_front/view/pages/pagina_obra.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -23,6 +23,7 @@ class MyApp extends StatelessWidget {
           '/minhasObras'  => const PaginaMinhasObras(),
           '/LerQRCode'    => const PaginaLerQrcode(),
           '/Configuracao' => const PaginaConfiguracao(),
+          '/PaginaObra' => const PaginaObra(),
           _               => const PaginaMinhasObras(),
         };
 
