@@ -1,4 +1,5 @@
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
+import 'package:fastfvs_front/view/pages/pagina_perfil.dart';
 import 'package:flutter/material.dart';
 
 class PaginaConfiguracao extends StatelessWidget {
@@ -32,33 +33,45 @@ class PaginaConfiguracao extends StatelessWidget {
                       value: true,
                       onChanged: null,
                       activeColor: Theme.of(context).colorScheme.secondary,
-                      activeTrackColor: Theme.of(context).colorScheme.onSecondary,
+                      activeTrackColor: Theme.of(
+                        context,
+                      ).colorScheme.onSecondary,
                     ),
                   ],
                 ),
               ),
               Spacer(),
               SizedBox(height: 40.0),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "      Perfil",
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSecondary,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PaginaPerfil(),
+                    ),
+                  );
+                },
+                child: Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "      Perfil",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSecondary,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 8.0),
-                    Icon(
-                      Icons.account_circle_outlined,
-                      size: 24.0,
-                      color: Theme.of(context).colorScheme.onSecondary,
-                    ),
-                  ],
+                      SizedBox(width: 8.0),
+                      Icon(
+                        Icons.account_circle_outlined,
+                        size: 24.0,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Align(
