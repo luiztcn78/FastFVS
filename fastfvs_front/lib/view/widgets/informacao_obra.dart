@@ -8,33 +8,38 @@ class InformacaoObra extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: Border(
+          bottom: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary)
+        ),
       ),
       child: Row(
         children: [
-          CircularPercentIndicator(
-            circularStrokeCap: CircularStrokeCap.round,
-            radius: 50.0,
-            lineWidth: 10.0,
-            percent: 0.31,        // 0.0 até 1.0 (75%)
-            center: Container(
-              width: 70,
-              height: 70,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).colorScheme.primary
-              ),
-              child: Text('31%', 
-                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                fontSize: 14,
-                  color: Theme.of(context).colorScheme.onPrimary
+          Padding(
+            padding: const EdgeInsets.all(7.0),
+            child: CircularPercentIndicator(
+              circularStrokeCap: CircularStrokeCap.round,
+              radius: 55.0,
+              lineWidth: 10.0,
+              percent: 0.31,        // 0.0 até 1.0 (75%)
+              center: Container(
+                width: 70,
+                height: 70,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).colorScheme.primary
                 ),
-              )
-            ),
-            progressColor: Colors.green,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-        ),
+                child: Text('31%', 
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onPrimary
+                  ),
+                )
+              ),
+              progressColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+                    ),
+          ),
         Expanded(
           child: Column(
             children: [
