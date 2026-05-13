@@ -23,7 +23,6 @@ class MyApp extends StatelessWidget {
           '/minhasObras'  => const PaginaMinhasObras(),
           '/LerQRCode'    => const PaginaLerQrcode(),
           '/Configuracao' => const PaginaConfiguracao(),
-          '/PaginaObra' => const PaginaObra(),
           _               => const PaginaMinhasObras(),
         };
 

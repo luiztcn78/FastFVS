@@ -11,7 +11,7 @@ class ContainerParticao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //==============verifica se é botão ou não============
+    //==============verifica se é botão ou não (por conta do reuso em momento em que não é pra redirecionar)============
     verificarBotao(){
     if(serBotao){
       return () => Navigator.of(context, rootNavigator: false).pushNamed('/particao');
@@ -21,7 +21,7 @@ class ContainerParticao extends StatelessWidget {
     }
   }
   //=====================
-  
+
     double larguraBarra = largura - 45;
 
     return InkWell(

@@ -22,8 +22,9 @@ class botao_obra extends StatelessWidget{
             )
           ),
 
-          onPressed:() => Navigator.pushNamed(
-            context, '/PaginaObra'
+          onPressed:() => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PaginaObra()),
             ), 
 
           child: Text(
