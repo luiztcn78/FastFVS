@@ -42,6 +42,7 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
 
   @override
   Widget build(BuildContext context) {
+    
     final largura = MediaQuery.of(context).size.width;
     final cor = Theme.of(context).colorScheme;
 
@@ -59,7 +60,7 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                   child: Text(
                     "Minhas Obras",
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontSize: largura * 0.06,
+                      fontSize: largura * 0.06, color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                 ),
@@ -202,9 +203,8 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                                 setState(() => _subPopup = 'compartilhar'),
                           ),
                           ElevatedButton(
-                            onPressed: () => setState(
-                              () => _mostrarBotoes = !_mostrarBotoes,
-                            ),
+                            onPressed: () => setState(() => _popupAberto = !_popupAberto,),
+
                             style: ElevatedButton.styleFrom(
                               backgroundColor: cor.primary,
                               shape: RoundedRectangleBorder(
@@ -225,7 +225,9 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                               Icons.settings_outlined,
                               color: cor.primary,
                             ),
-                            onPressed: () {},
+                            onPressed: () => setState(
+                              () => _mostrarBotoes = !_mostrarBotoes
+                              ),
                           ),
                         ],
                       ),

@@ -1,9 +1,3 @@
-
-
-import 'package:fastfvs_front/config/theme_light.dart';
-import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
-import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
-import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
 import 'package:flutter/material.dart';
 
 class PaginaBase extends StatefulWidget{
@@ -23,36 +17,49 @@ class PaginaBaseState extends State<PaginaBase> {
     switch(index){
       case 0:
         Navigator.pushReplacementNamed(context, '/minhasObras');
+        break;
       case 1:
         Navigator.pushReplacementNamed(context, '/LerQRCode');
+        break;
       case 2:
         Navigator.pushReplacementNamed(context, '/Configuracao');
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context){
-    final iconTamanho = MediaQuery.of(context).size.width * 0.12;
+    final iconTamanho = MediaQuery.of(context).size.width * 0.08;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text("FastFVS",style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
-        titleSpacing: -30,
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.account_circle, size: iconTamanho, color: Theme.of(context).colorScheme.onPrimary,))
         ],
       ),
       body: widget.body,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: widget.paginaAberta,
-        onTap: trocarTela,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined, size: iconTamanho, color: Theme.of(context).colorScheme.onPrimary), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.camera_alt_outlined, size: iconTamanho, color: Theme.of(context).colorScheme.onPrimary), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.settings_outlined, size: iconTamanho, color: Theme.of(context).colorScheme.onPrimary,), label: ''),
-        ]
+      bottomNavigationBar: Container(
+        height: 56,
+        color: Theme.of(context).colorScheme.primary,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              icon: Icon(Icons.home_outlined, size: 30, color: Theme.of(context).colorScheme.onPrimary),
+              onPressed: () => trocarTela(0),
+            ),
+            IconButton(
+              icon: Icon(Icons.camera_alt_outlined, size: 30, color: Theme.of(context).colorScheme.onPrimary),
+              onPressed: () => trocarTela(1),
+            ),
+            IconButton(
+              icon: Icon(Icons.settings_outlined, size: 30, color: Theme.of(context).colorScheme.onPrimary),
+              onPressed: () => trocarTela(2),
+            ),
+          ],
+        ),
       ),
     );
   }

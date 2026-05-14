@@ -26,21 +26,21 @@ class _PaginaLerQrcodeState extends State<PaginaLerQrcode> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.smartphone, size: 80, color: cor.primary),
+                    Icon(Icons.smartphone, size: 80, color: cor.onSecondary),
                     const SizedBox(height: 24),
                     Text(
                       "Leitura de QR Code",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: cor.primary,
+                        color: cor.onSecondary,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Text(
                       "Esta funcionalidade está disponível apenas no aplicativo mobile.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: cor.primary),
+                      style: TextStyle(fontSize: 16, color: cor.onSecondary),
                     ),
                   ],
                 ),
@@ -94,7 +94,7 @@ class _PaginaLerQrcodeState extends State<PaginaLerQrcode> {
                           ),
                           child: Text(
                             "Ler outro",
-                            style: TextStyle(color: cor.primary),
+                            style: TextStyle(color: cor.onSecondary),
                           ),
                         ),
                       ],

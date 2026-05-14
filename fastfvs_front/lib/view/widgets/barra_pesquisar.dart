@@ -45,7 +45,7 @@ class BarraPesquisarState extends State<BarraPesquisar> {
               children: [
                 Padding(
                   padding: EdgeInsets.all(10.0),
-                  child: Icon(Icons.search),
+                  child: Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
                 ),
                 Expanded(
                   child: TextField(

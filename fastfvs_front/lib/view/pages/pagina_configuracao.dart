@@ -1,3 +1,4 @@
+import 'package:fastfvs_front/main.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_perfil.dart';
 import 'package:flutter/material.dart';
@@ -29,14 +30,18 @@ class PaginaConfiguracao extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 8),
+
                     Switch(
-                      value: true,
-                      onChanged: null,
-                      activeColor: Theme.of(context).colorScheme.secondary,
-                      activeTrackColor: Theme.of(
-                        context,
-                      ).colorScheme.onSecondary,
+                      value: themeNotifier.value == ThemeMode.dark,
+                      onChanged: (bool value) {
+                        themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
+                      },
+                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeTrackColor: Colors.white,
+                      inactiveThumbColor: Theme.of(context).colorScheme.secondary,
+                      inactiveTrackColor:Theme.of(context).colorScheme.primary,
                     ),
+
                   ],
                 ),
               ),

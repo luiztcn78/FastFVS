@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ThemeLight {
+class ThemeDark {
   static final ThemeData theme = ThemeData(
     textTheme: GoogleFonts.frauncesTextTheme(),
     colorScheme: ColorScheme(
-      brightness: Brightness.light,
+      brightness: Brightness.dark,
       primary: Color(0xff3C1E01),
       onPrimary: Colors.white,
-      secondary: Colors.white,
-      onSecondary: Color(0xff3C1E01),
+      secondary: Colors.black,
+      onSecondary: Colors.white,
       error: Colors.red,
       onError: Colors.white,
-      surface: Colors.white,
+      surface: Colors.black,
       onSurface: Colors.white,
+      
     )
   );
 }
