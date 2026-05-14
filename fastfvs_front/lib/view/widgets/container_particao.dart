@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
+//aqui vai precisar dos atributos para mudar a pagina particao de acordo com as partiçoes de cada um
+
 class ContainerParticao extends StatelessWidget {
   final double largura;
   final double altura;
   final bool serBotao;
-  const ContainerParticao({this.serBotao = true, this.largura = 160, this.altura = 100,super.key});
+  final String nome;
+  const ContainerParticao({required this.nome,this.serBotao = true, this.largura = 160, this.altura = 100,super.key});
 
 
   @override
@@ -43,7 +46,7 @@ class ContainerParticao extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 10, left: 20, right: 7),
-                  child: Text("Bloco A", style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  child: Text(nome, overflow: TextOverflow.ellipsis,  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 22,
                       color: Theme.of(context).colorScheme.onSecondary)
                   ),

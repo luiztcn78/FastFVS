@@ -14,33 +14,47 @@ class PaginaObra extends StatefulWidget{
 
 class PaginaObraState extends State<PaginaObra> {
 final controladorNavegacao = GlobalKey<NavigatorState>();
+
+final List<String> particoes = ['Container A', 'Container B', 'Container C',];
   
   @override
   Widget build(BuildContext context) {
-    return PaginaBase(
-      paginaAberta: 0,
-      body: Column(
-          children: [
-            InformacaoObra(),
-            Expanded(
-              child: Navigator(
-                key: controladorNavegacao,
-                onGenerateRoute: (settings) {
-                  switch (settings.name) {
-                  case '/particao':
-                    return MaterialPageRoute(
-                      builder: (context) => PaginaParticao(),
-                    );
-                  default:
-                    return MaterialPageRoute(
-                      builder: (context) => ListaContainersParticao(),
-                    );
-                  }
-                },
+    //pop scope configura o botao voltar e desfarça o navegador local
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (controladorNavegacao.currentState?.canPop() == true) {
+          controladorNavegacao.currentState?.pop();
+        } else {
+          Navigator.of(context).pop();
+        }
+      },
+      child: PaginaBase(
+        paginaAberta: 0,
+        body: Column(
+            children: [
+              InformacaoObra(),
+              Expanded(
+                child: Navigator(
+                  key: controladorNavegacao,
+                  onGenerateRoute: (settings) {
+                    switch (settings.name) {
+                    case '/particao':
+                      return MaterialPageRoute(
+                        builder: (context) => PaginaParticao(),
+                      );
+                    default:
+                      return MaterialPageRoute(
+                        builder: (context) => ListaContainersParticao(particoes: particoes)
+                      );
+                    }
+                  },
+                )
               )
-            )
-          ],
-        ),
+            ],
+          ),
+      ),
     );
   }
 }
