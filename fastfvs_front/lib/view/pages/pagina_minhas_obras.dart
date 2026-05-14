@@ -1,5 +1,10 @@
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/widgets/barra_pesquisar.dart';
+import 'package:fastfvs_front/view/widgets/contador_numero.dart';
+import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
+import 'package:fastfvs_front/view/widgets/popup_criacao_automatica.dart';
+import 'package:fastfvs_front/view/widgets/popup_editar_obra.dart';
+import 'package:fastfvs_front/view/widgets/popup_fvs_padroes.dart';
 import 'package:flutter/material.dart';
 
 class PaginaMinhasObras extends StatefulWidget {
@@ -14,6 +19,26 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
   bool _blocoAberto = false;
   bool _pavAberto = false;
   bool _mostrarBotoes = false;
+
+  String? _subPopup;
+
+  final TextEditingController _nomeController = TextEditingController(
+    text: "Residencial Flores",
+  );
+
+  void _fecharTudo() {
+    setState(() {
+      _popupAberto = false;
+      _blocoAberto = false;
+      _pavAberto = false;
+      _mostrarBotoes = false;
+      _subPopup = null;
+    });
+  }
+
+  void _fecharSubPopup() {
+    setState(() => _subPopup = null);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +67,12 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
               Expanded(child: BarraPesquisar()),
             ],
           ),
+
           Positioned(
             bottom: 24,
             right: 24,
             child: ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _popupAberto = true;
-                });
-              },
+              onPressed: () => setState(() => _popupAberto = true),
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text(
                 "Add Obra",
@@ -64,18 +86,13 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
               ),
             ),
           ),
+
           if (_popupAberto) ...[
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  _popupAberto = false;
-                  _blocoAberto = false;
-                  _pavAberto = false;
-                  _mostrarBotoes = false;
-                });
-              },
+              onTap: _fecharTudo,
               child: Container(color: Colors.black26),
             ),
+
             Positioned(
               top: 60,
               left: largura * 0.05,
@@ -114,124 +131,62 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                                 ),
                               ),
                             ),
-                            Icon(Icons.edit, color: cor.onPrimary, size: 18),
+                            GestureDetector(
+                              onTap: () => setState(() => _subPopup = 'editar'),
+                              child: Icon(
+                                Icons.edit,
+                                color: cor.onPrimary,
+                                size: 18,
+                              ),
+                            ),
                           ],
                         ),
                       ),
+
                       const SizedBox(height: 8),
-                      // Bloco A
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () =>
-                                setState(() => _blocoAberto = !_blocoAberto),
-                            child: Icon(
-                              _blocoAberto
-                                  ? Icons.expand_more
-                                  : Icons.chevron_right,
-                              color: cor.primary,
-                            ),
-                          ),
-                          Icon(Icons.view_module, color: cor.primary, size: 18),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: Text(
-                              "Bloco A",
-                              style: TextStyle(color: cor.primary),
-                            ),
-                          ),
-                          Icon(Icons.edit, color: cor.primary, size: 18),
-                          const SizedBox(width: 8),
-                          Icon(Icons.add, color: cor.primary, size: 20),
-                        ],
+
+                      _linhaArvore(
+                        cor: cor,
+                        icone: Icons.view_module,
+                        label: "Bloco A",
+                        expandido: _blocoAberto,
+                        onExpandir: () =>
+                            setState(() => _blocoAberto = !_blocoAberto),
+                        indent: 0,
                       ),
+
                       if (_blocoAberto)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () =>
-                                    setState(() => _pavAberto = !_pavAberto),
-                                child: Icon(
-                                  _pavAberto
-                                      ? Icons.expand_more
-                                      : Icons.chevron_right,
-                                  color: cor.primary,
-                                ),
-                              ),
-                              Icon(Icons.layers, color: cor.primary, size: 18),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  "Pav 1",
-                                  style: TextStyle(color: cor.primary),
-                                ),
-                              ),
-                              Icon(Icons.edit, color: cor.primary, size: 18),
-                              const SizedBox(width: 8),
-                              Icon(Icons.add, color: cor.primary, size: 20),
-                            ],
-                          ),
+                        _linhaArvore(
+                          cor: cor,
+                          icone: Icons.layers,
+                          label: "Pav 1",
+                          expandido: _pavAberto,
+                          onExpandir: () =>
+                              setState(() => _pavAberto = !_pavAberto),
+                          indent: 16,
                         ),
+
                       if (_blocoAberto && _pavAberto)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 32),
-                          child: Row(
-                            children: [
-                              Icon(Icons.chevron_right, color: cor.primary),
-                              Icon(
-                                Icons.door_front_door,
-                                color: cor.primary,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
-                                  "Apt 1",
-                                  style: TextStyle(color: cor.primary),
-                                ),
-                              ),
-                              Icon(Icons.edit, color: cor.primary, size: 18),
-                              const SizedBox(width: 8),
-                              Icon(Icons.add, color: cor.primary, size: 20),
-                            ],
-                          ),
+                        _linhaArvore(
+                          cor: cor,
+                          icone: Icons.door_front_door,
+                          label: "Apt 1",
+                          expandido: false,
+                          onExpandir: null,
+                          indent: 32,
                         ),
                       const SizedBox(height: 12),
                       if (_mostrarBotoes) ...[
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: cor.primary),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: Text(
-                              "Criação Automática",
-                              style: TextStyle(color: cor.primary),
-                            ),
-                          ),
+                        _botaoOutlined(
+                          cor,
+                          "Criação Automática",
+                          () => setState(() => _subPopup = 'criacao'),
                         ),
                         const SizedBox(height: 8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: OutlinedButton(
-                            onPressed: () {},
-                            style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: cor.primary),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: Text(
-                              "FVS Padrões",
-                              style: TextStyle(color: cor.primary),
-                            ),
-                          ),
+                        _botaoOutlined(
+                          cor,
+                          "FVS Padrões",
+                          () => setState(() => _subPopup = 'fvs'),
                         ),
                         const SizedBox(height: 12),
                       ],
@@ -243,12 +198,13 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                               Icons.person_add_outlined,
                               color: cor.primary,
                             ),
-                            onPressed: () {},
+                            onPressed: () =>
+                                setState(() => _subPopup = 'compartilhar'),
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              setState(() => _mostrarBotoes = !_mostrarBotoes);
-                            },
+                            onPressed: () => setState(
+                              () => _mostrarBotoes = !_mostrarBotoes,
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: cor.primary,
                               shape: RoundedRectangleBorder(
@@ -279,7 +235,72 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
               ),
             ),
           ],
+          if (_subPopup == 'criacao')
+            PopupCriacaoAutomatica(onFechar: _fecharSubPopup),
+
+          if (_subPopup == 'fvs') PopupFvsPadroes(onFechar: _fecharSubPopup),
+
+          if (_subPopup == 'compartilhar')
+            PopupCompartilhar(onFechar: _fecharSubPopup),
+
+          if (_subPopup == 'editar')
+            PopupEditarObra(
+              nomeController: _nomeController,
+              onFechar: _fecharSubPopup,
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _linhaArvore({
+    required ColorScheme cor,
+    required IconData icone,
+    required String label,
+    required bool expandido,
+    required VoidCallback? onExpandir,
+    required double indent,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(left: indent),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: onExpandir,
+            child: Icon(
+              onExpandir == null
+                  ? Icons.chevron_right
+                  : expandido
+                  ? Icons.expand_more
+                  : Icons.chevron_right,
+              color: cor.primary,
+            ),
+          ),
+          Icon(icone, color: cor.primary, size: 18),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(label, style: TextStyle(color: cor.primary)),
+          ),
+          Icon(Icons.edit, color: cor.primary, size: 18),
+          const SizedBox(width: 8),
+          Icon(Icons.add, color: cor.primary, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _botaoOutlined(ColorScheme cor, String label, VoidCallback onTap) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: cor.primary),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: Text(label, style: TextStyle(color: cor.primary)),
       ),
     );
   }
