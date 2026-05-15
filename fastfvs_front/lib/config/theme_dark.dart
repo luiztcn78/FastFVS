@@ -3,6 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 class ThemeDark {
   static final ThemeData theme = ThemeData(
+    appBarTheme: AppBarTheme(
+      iconTheme: IconThemeData(
+        color: Colors.white, // ← seta e todos os ícones da AppBar
+      )
+    ),
     textTheme: GoogleFonts.frauncesTextTheme(),
     colorScheme: ColorScheme(
       brightness: Brightness.dark,

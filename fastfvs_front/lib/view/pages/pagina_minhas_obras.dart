@@ -1,6 +1,5 @@
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/widgets/barra_pesquisar.dart';
-import 'package:fastfvs_front/view/widgets/contador_numero.dart';
 import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
 import 'package:fastfvs_front/view/widgets/popup_criacao_automatica.dart';
 import 'package:fastfvs_front/view/widgets/popup_editar_obra.dart';

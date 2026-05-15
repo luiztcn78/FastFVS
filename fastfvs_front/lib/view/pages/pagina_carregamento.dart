@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fastfvs_front/view/widgets/rodape_acesso.dart';
 import 'package:fastfvs_front/view/widgets/bolinhas_carregamento.dart';
 import 'package:fastfvs_front/view/pages/pagina_login.dart';
 

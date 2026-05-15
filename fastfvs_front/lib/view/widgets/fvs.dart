@@ -27,7 +27,7 @@ class FvsState extends State<Fvs>{
               child: PopUpStatusFvs(statusSelecionado: (cor) {
                 setState(() => status = cor);
               },
-                nomeFvs: widget.nome), // ← seu widget de popup
+                nomeFvs: widget.nome),
             ),
           );
         },
@@ -43,8 +43,12 @@ class FvsState extends State<Fvs>{
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 10),
-                child: Text(widget.nome),
-              ),
+                child: Text(widget.nome, 
+                overflow: TextOverflow.ellipsis,  
+                style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontSize: 20,
+                  color: Theme.of(context).colorScheme.onSecondary)
+                  ),),
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Container(

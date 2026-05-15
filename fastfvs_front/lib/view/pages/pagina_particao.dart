@@ -3,7 +3,6 @@ import 'package:fastfvs_front/view/widgets/botao_particao_baixo.dart';
 import 'package:fastfvs_front/view/widgets/container_particao.dart';
 import 'package:fastfvs_front/view/widgets/lista_containers_parti%C3%A7%C3%B5es.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class PaginaParticao extends StatefulWidget {
   const PaginaParticao({super.key});

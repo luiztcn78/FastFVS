@@ -1,4 +1,3 @@
-import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/widgets/botao_obra.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +9,7 @@ class BarraPesquisar extends StatefulWidget{
 }
 
 class BarraPesquisarState extends State<BarraPesquisar> {
-  List<String> lista_teste = ["x", 'y', 'z', "a", 'b', 'c'];
+  List<String> lista_teste = ["Residencial Flores", 'Upe', 'Hospital se-cure', "Roblox"];
   List<String> lista_teste_filtrada = [];
 
   @override
@@ -52,7 +51,9 @@ class BarraPesquisarState extends State<BarraPesquisar> {
                     onChanged: filtrar,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "Buscar Obras"
+                      hintText: "Buscar Obras", hintStyle: TextStyle(
+                        color: Colors.grey
+                      )
                     ),
                   )
                 ),

@@ -83,7 +83,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(text: nome),
-                    decoration: InputDecoration(border: OutlineInputBorder()),
+                    decoration: InputDecoration(border: OutlineInputBorder(), ),
                     onTap: () {
                       TextEditingController controller = TextEditingController(
                         text: nome,

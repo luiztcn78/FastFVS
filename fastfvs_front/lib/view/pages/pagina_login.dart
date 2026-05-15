@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:fastfvs_front/view/pages/pagina_carregamento.dart'; 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fastfvs_front/view/widgets/rodape_acesso.dart';
 import 'package:fastfvs_front/view/pages/pagina_cadastro.dart';
 import 'package:fastfvs_front/view/widgets/botao_input_acesso.dart';
 import 'package:fastfvs_front/view/pages/pagina_recuperar_senha.dart';
-import 'package:fastfvs_front/view/pages/pagina_codigo_verificacao.dart';
-import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
+
 
 class PaginaLogin extends StatefulWidget {
   const PaginaLogin({super.key});
