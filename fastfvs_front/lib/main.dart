@@ -3,7 +3,6 @@ import 'package:fastfvs_front/config/theme_dark.dart';
 import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
 import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
 import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
-import 'package:fastfvs_front/view/pages/pagina_obra.dart';
 import 'package:fastfvs_front/view/pages/pagina_carregamento.dart ';
 import 'package:flutter/material.dart';
 

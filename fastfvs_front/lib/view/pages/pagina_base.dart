@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class PaginaBase extends StatefulWidget{
   final Widget body;
   final int paginaAberta;
+  final Widget? botaoFlutuante;
 
-  const PaginaBase({required this.body, required this.paginaAberta});
+  const PaginaBase({this.botaoFlutuante, required this.body, required this.paginaAberta});
 
  @override
   State<PaginaBase> createState() => PaginaBaseState();
@@ -32,6 +33,7 @@ class PaginaBaseState extends State<PaginaBase> {
     final iconTamanho = MediaQuery.of(context).size.width * 0.08;
 
     return Scaffold(
+      floatingActionButton: widget.botaoFlutuante,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text("FastFVS",style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
