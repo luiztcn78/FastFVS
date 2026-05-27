@@ -11,22 +11,17 @@ class OpcoesMenuSuspenso extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(20),
-        ),
-        width: MediaQuery.of(context).size.width*0.4,
-        height: 45,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 5),
-          child: Text(nome, 
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-            fontSize: 20,
+          margin: EdgeInsets.only(bottom: 8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(nome, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onPrimary
             ),
           ),
         ),
-      ),
     );
   }
 }

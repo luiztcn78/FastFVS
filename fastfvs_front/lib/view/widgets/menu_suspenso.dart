@@ -12,17 +12,10 @@ class MenuSuspenso extends StatelessWidget {
       alignment: Alignment.bottomRight,
       child: Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: opcoes.map((opcao) => GestureDetector(
         onTap: opcao.onTap,
-        child: Container(
-          margin: EdgeInsets.only(bottom: 8),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(opcao.nome),
-        ),
+        child: opcao,
       )).toList(),
     )
     );
