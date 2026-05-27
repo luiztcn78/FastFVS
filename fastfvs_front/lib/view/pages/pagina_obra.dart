@@ -1,5 +1,6 @@
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_particao.dart';
+import 'package:fastfvs_front/view/pages/pagina_qr_code_obra.dart';
 import 'package:fastfvs_front/view/widgets/botao_criar_fvs.dart';
 import 'package:fastfvs_front/view/widgets/informacao_obra.dart';
 import 'package:fastfvs_front/view/widgets/lista_containers_parti%C3%A7%C3%B5es.dart';
@@ -27,12 +28,16 @@ String fvsCriada = '';
 @override
 void initState() {
   super.initState();
-  _definirOpcoesInicio();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _definirOpcoesInicio();
+  });
 }
 
 void _definirOpcoesInicio() {
     opcoes.value = [
-      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {}),
+      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+      }),
     ];
   }
 
@@ -123,12 +128,11 @@ void _definirOpcoesInicio() {
       },
     ),
       OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
-        showGeneralDialog(
+        showDialog(
           context: context,
           barrierDismissible: true,
-          barrierLabel: '',
-          barrierColor: Colors.transparent, // ✅ o popup já tem Colors.black26
-          pageBuilder: (_, __, ___) => PopupFvsPadroes(
+          barrierColor: Colors.transparent,
+          builder: (_) => PopupFvsPadroes(
             onFechar: () => Navigator.pop(context),
           ),
         );
@@ -165,12 +169,16 @@ void _definirOpcoesInicio() {
                   onGenerateRoute: (settings) {
                     switch (settings.name) {
                     case '/particao':
-                      _definirOpcoesParticao();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _definirOpcoesParticao();
+                      });
                       return MaterialPageRoute(
                         builder: (context) => PaginaParticao(),
                       );
                     default:
-                    _definirOpcoesInicio();
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _definirOpcoesInicio();
+                      });
                       return MaterialPageRoute(
                         builder: (context) => ListaContainersParticao(particoes: particoes)
                       );
