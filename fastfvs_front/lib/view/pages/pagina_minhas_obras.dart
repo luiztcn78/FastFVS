@@ -195,11 +195,12 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                         children: [
                           IconButton(
                             icon: Icon(
-                              Icons.person_add_outlined,
+                              Icons.settings_outlined,
                               color: cor.primary,
                             ),
-                            onPressed: () =>
-                                setState(() => _subPopup = 'compartilhar'),
+                            onPressed: () => setState(
+                              () => _mostrarBotoes = !_mostrarBotoes
+                              ),
                           ),
                           ElevatedButton(
                             onPressed: () => setState(() => _popupAberto = !_popupAberto,),
@@ -219,15 +220,6 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                               style: TextStyle(color: cor.onPrimary),
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.settings_outlined,
-                              color: cor.primary,
-                            ),
-                            onPressed: () => setState(
-                              () => _mostrarBotoes = !_mostrarBotoes
-                              ),
-                          ),
                         ],
                       ),
                     ],
@@ -240,9 +232,6 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
             PopupCriacaoAutomatica(onFechar: _fecharSubPopup),
 
           if (_subPopup == 'fvs') PopupFvsPadroes(onFechar: _fecharSubPopup),
-
-          if (_subPopup == 'compartilhar')
-            PopupCompartilhar(onFechar: _fecharSubPopup),
 
           if (_subPopup == 'editar')
             PopupEditarObra(

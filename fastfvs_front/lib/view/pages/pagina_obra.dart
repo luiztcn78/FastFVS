@@ -5,6 +5,7 @@ import 'package:fastfvs_front/view/widgets/botao_criar_fvs.dart';
 import 'package:fastfvs_front/view/widgets/informacao_obra.dart';
 import 'package:fastfvs_front/view/widgets/lista_containers_parti%C3%A7%C3%B5es.dart';
 import 'package:fastfvs_front/view/widgets/opcoes_menu_suspenso.dart';
+import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
 import 'package:fastfvs_front/view/widgets/popup_fvs_padroes.dart';
 import 'package:flutter/material.dart';
 
@@ -33,12 +34,17 @@ void initState() {
   });
 }
 
-void _definirOpcoesInicio() {
-    opcoes.value = [
-      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
-      }),
-    ];
+  void _definirOpcoesInicio() {
+      opcoes.value = [
+        OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+        }),
+        OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap:() => { showDialog(
+            context: context,
+            builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
+          )
+        }
+        )];
   }
 
   void _definirOpcoesParticao() {
