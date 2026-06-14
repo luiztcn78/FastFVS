@@ -109,21 +109,6 @@ class _PaginaRedefinirSenhaState extends State<PaginaRedefinirSenha> {
                             ),
                             const SizedBox(height: 15),
 
-                            BotaoInputAcesso(
-                              label: 'Confirmar Nova Senha',
-                              obscureText: _ocultarConfirmarSenha,
-                              hintText: '********',
-                              validator: (value) {
-                                if (value == null || value.isEmpty) return 'Confirme a nova senha';
-                                if (value != _novaSenhaController.text) return 'As senhas não coincidem';
-                                return null;
-                              },
-                              suffixIcon: IconButton(
-                                onPressed: () => setState(() => _ocultarConfirmarSenha = !_ocultarConfirmarSenha),
-                                icon: Icon(_ocultarConfirmarSenha ? Icons.visibility_off : Icons.visibility, color: Colors.grey, size: 20),
-                              ),
-                            ),
-
                             const SizedBox(height: 25),
 
                             Align(
