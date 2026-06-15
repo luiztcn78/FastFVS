@@ -1,50 +1,23 @@
-import 'package:fastfvs_front/config/theme_light.dart';
-import 'package:fastfvs_front/config/theme_dark.dart';
-import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
-import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
-import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
-import 'package:fastfvs_front/view/pages/pagina_carregamento.dart ';
-import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:fastfvs_front/models/usuario.dart';
 
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
-void main() {
-  runApp(const MyApp());
-}
+class AuthService {
+  static const String _baseUrl = 'http://SEU_IP:8080/api/auth';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (_, ThemeMode currentMode, __) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'FastFVS',
-          theme: ThemeLight.theme,
-          darkTheme: ThemeDark.theme,
-          themeMode: currentMode,
-          initialRoute: '/Carregamento',
-          onGenerateRoute: (settings) {
-            Widget page = switch (settings.name) {
-              '/minhasObras' => const PaginaMinhasObras(),
-              '/LerQRCode' => const PaginaLerQrcode(),
-              '/Configuracao' => const PaginaConfiguracao(),
-              '/Carregamento' => const PaginaCarregamento(),
-              _ => const PaginaMinhasObras(),
-            };
-
-            return PageRouteBuilder(
-              settings: settings,
-              pageBuilder: (_, __, ___) => page,
-              transitionDuration: Duration.zero,
-              reverseTransitionDuration: Duration.zero,
-              transitionsBuilder: (_, __, ___, child) => child,
-            );
-          },
-        );
-      },
+  Future<Usuario> login(String email, String senha) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'senha': senha}),
     );
+
+    if (response.statusCode == 200) {
+      return Usuario.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 401) {
+      throw Exception('E-mail ou senha incorretos.');
+    } else {
+      throw Exception('Erro ao conectar com o servidor.');
+    }
   }
 }

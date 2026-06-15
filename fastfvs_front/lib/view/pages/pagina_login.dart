@@ -5,6 +5,9 @@ import 'package:fastfvs_front/view/pages/pagina_cadastro.dart';
 import 'package:fastfvs_front/view/widgets/botao_input_acesso.dart';
 import 'package:fastfvs_front/view/pages/pagina_recuperar_senha.dart';
 
+// Adicionados conforme instrução
+import 'package:fastfvs_front/services/auth_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 
 class PaginaLogin extends StatefulWidget {
   const PaginaLogin({super.key});
@@ -15,13 +18,16 @@ class PaginaLogin extends StatefulWidget {
 
 class _PaginaLoginState extends State<PaginaLogin> {
   final _formKey = GlobalKey<FormState>();
-  
+
+  // Adicionados conforme instrução
+  final _authService = AuthService();
+  bool _carregando = false;
 
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
-  
+
   bool _ocultarSenha = true;
-  bool _erroLogin = false; 
+  bool _erroLogin = false;
   String _mensagemErro = '';
 
   @override
@@ -37,9 +43,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
       backgroundColor: Theme.of(context).colorScheme.primary,
       foregroundColor: Theme.of(context).colorScheme.secondary,
       padding: const EdgeInsets.symmetric(vertical: 14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 3,
     );
 
@@ -49,7 +53,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
           Positioned.fill(
             child: SingleChildScrollView(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start, 
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
                   Image.asset('assets/images/logo_fastfvs.png', width: 120),
@@ -62,7 +66,9 @@ class _PaginaLoginState extends State<PaginaLogin> {
                         Shadow(
                           offset: const Offset(1.0, 1.0),
                           blurRadius: 3.0,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.3),
                         ),
                       ],
                       fontSize: 18,
@@ -79,10 +85,12 @@ class _PaginaLoginState extends State<PaginaLogin> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withOpacity(0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
-                        )
+                        ),
                       ],
                     ),
                     child: Form(
@@ -95,7 +103,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.primary, 
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                           const SizedBox(height: 25),
@@ -103,9 +111,9 @@ class _PaginaLoginState extends State<PaginaLogin> {
                           BotaoInputAcesso(
                             label: 'E-mail',
                             hintText: 'exemplo@email.com',
-                            controller: _emailController, 
+                            controller: _emailController,
                             validator: (value) {
-                              if (_erroLogin) return ''; 
+                              if (_erroLogin) return '';
                               return null;
                             },
                           ),
@@ -115,31 +123,34 @@ class _PaginaLoginState extends State<PaginaLogin> {
                             label: 'Senha',
                             obscureText: _ocultarSenha,
                             hintText: 'Digite sua senha',
-                            controller: _senhaController, 
+                            controller: _senhaController,
                             validator: (value) {
-                              if (_erroLogin) return ''; 
+                              if (_erroLogin) return '';
                               return null;
                             },
                             suffixIcon: Padding(
                               padding: const EdgeInsets.only(right: 8),
                               child: IconButton(
                                 onPressed: () {
-                                  setState(() => _ocultarSenha = !_ocultarSenha);
+                                  setState(
+                                    () => _ocultarSenha = !_ocultarSenha,
+                                  );
                                 },
                                 icon: Icon(
-                                  _ocultarSenha ? Icons.visibility_off : Icons.visibility,
-                                  color: Colors.grey, 
+                                  _ocultarSenha
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey,
                                   size: 20,
                                 ),
                               ),
                             ),
                           ),
-                          
-                          
+
                           if (_erroLogin) ...[
                             const SizedBox(height: 5),
                             Text(
-                              _mensagemErro, 
+                              _mensagemErro,
                               style: const TextStyle(
                                 color: Colors.red,
                                 fontSize: 13,
@@ -147,7 +158,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
                               ),
                             ),
                           ],
-                        
+
                           const SizedBox(height: 20),
 
                           Row(
@@ -157,53 +168,102 @@ class _PaginaLoginState extends State<PaginaLogin> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => const PaginaRecuperarSenha()),
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const PaginaRecuperarSenha(),
+                                    ),
                                   );
                                 },
                                 child: Text(
                                   'Esqueci minha senha',
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary, 
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
                                 ),
                               ),
                               ElevatedButton(
-                                onPressed: () {
-                                  
-                                  setState(() {
-                                    _erroLogin = false;
-                                    _mensagemErro = '';
-                                  });
+                                // Atualizado conforme instrução
+                                onPressed: _carregando
+                                    ? null
+                                    : () async {
+                                        setState(() {
+                                          _erroLogin = false;
+                                          _mensagemErro = '';
+                                        });
 
-                                  bool camposVazios = _emailController.text.isEmpty || _senhaController.text.isEmpty;
-                                  bool emailInvalido = !_emailController.text.contains('@');
+                                        if (_emailController.text.isEmpty ||
+                                            _senhaController.text.isEmpty) {
+                                          setState(() {
+                                            _erroLogin = true;
+                                            _mensagemErro =
+                                                'Um ou mais campos estão nulos/vazios.';
+                                          });
+                                          _formKey.currentState!.validate();
+                                          return;
+                                        }
 
-                                  if (camposVazios) {
-                                    setState(() {
-                                      _erroLogin = true;
-                                      _mensagemErro = 'Um ou mais campos estão nulos/vazios.';
-                                    });
-                                    _formKey.currentState!.validate(); 
-                                  } else if (emailInvalido) {
-                                    setState(() {
-                                      _erroLogin = true;
-                                      _mensagemErro = 'E-mail ou senha está incorreto.';
-                                    });
-                                    _formKey.currentState!.validate(); 
-                                  } else {
-                                    Navigator.pushNamedAndRemoveUntil(
-                                      context,
-                                      '/minhasObras', // trocar por pagina home lá
-                                      (route) => false,
-                                    );
-                                  }
-                                },
+                                        if (!_emailController.text.contains(
+                                          '@',
+                                        )) {
+                                          setState(() {
+                                            _erroLogin = true;
+                                            _mensagemErro = 'E-mail inválido.';
+                                          });
+                                          _formKey.currentState!.validate();
+                                          return;
+                                        }
+
+                                        setState(() => _carregando = true);
+
+                                        try {
+                                          final usuario = await _authService
+                                              .login(
+                                                _emailController.text.trim(),
+                                                _senhaController.text,
+                                              );
+                                          SessaoUsuario.iniciar(usuario);
+                                          if (mounted) {
+                                            Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              '/minhasObras',
+                                              (route) => false,
+                                            );
+                                          }
+                                        } catch (e) {
+                                          setState(() {
+                                            _erroLogin = true;
+                                            _mensagemErro = e
+                                                .toString()
+                                                .replaceAll('Exception: ', '');
+                                          });
+                                          _formKey.currentState!.validate();
+                                        } finally {
+                                          if (mounted)
+                                            setState(() => _carregando = false);
+                                        }
+                                      },
                                 style: buttonStyleFilled,
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 20),
-                                  child: Text('Entrar', style: TextStyle(fontSize: 13)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  // Atualizado conforme instrução
+                                  child: _carregando
+                                      ? const SizedBox(
+                                          width: 18,
+                                          height: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const Text(
+                                          'Entrar',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
                                 ),
                               ),
                             ],
@@ -212,40 +272,54 @@ class _PaginaLoginState extends State<PaginaLogin> {
                           const SizedBox(height: 2),
                           Center(
                             child: Text(
-                              "ou", 
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 14)
-                            )
+                              "ou",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                           const SizedBox(height: 10),
-                
+
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
                               onPressed: () {},
-                              icon: const FaIcon(FontAwesomeIcons.google, size: 20),
+                              icon: const FaIcon(
+                                FontAwesomeIcons.google,
+                                size: 20,
+                              ),
                               label: const Text('Entrar com Google'),
                               style: buttonStyleFilled,
                             ),
                           ),
-                          
+
                           const SizedBox(height: 20),
 
                           Center(
                             child: Column(
                               children: [
-                                const Text("Não tem conta?", style: TextStyle(fontSize: 14)),
+                                const Text(
+                                  "Não tem conta?",
+                                  style: TextStyle(fontSize: 14),
+                                ),
                                 const SizedBox(height: 5),
                                 GestureDetector(
                                   onTap: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const PaginaCadastro()),
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PaginaCadastro(),
+                                      ),
                                     );
                                   },
                                   child: Text(
                                     "Criar Conta",
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary, 
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
                                     ),
