@@ -1,9 +1,9 @@
 class Obra{
   final int id;
   final String nome;
-  final String linkProjeto;
+  final String? linkProjeto;
   final double percentualConformidade;
-  final String role;
+  final String? role;
   final int usuarioId;
 
   Obra({
@@ -21,7 +21,7 @@ class Obra{
       usuarioId: json['usuarioId'],
       role: json['role'],
       linkProjeto: json['linkProjeto'],
-      percentualConformidade: json['percentualConformidade'],
+      percentualConformidade: json['percentualConformidade']?.toDouble(),
       nome: json['nome'],
     );
   }
