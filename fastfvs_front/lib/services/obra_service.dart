@@ -6,11 +6,11 @@ import 'package:http/http.dart' as http;
 
 class ObraService {
 
-  final String urlBase = "http://172.16.32.80:8080";
+  final String urlBase = "http://172.16.32.80:8080/api/obras";
 
   Future<void> criarObra(String nome, String? linkProjeto, int usuarioId) async {
     final response = await http.post(
-      Uri.parse('$urlBase/obras?usuarioId=$usuarioId'),
+      Uri.parse('$urlBase?usuarioId=$usuarioId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'nome': nome,
@@ -24,7 +24,7 @@ class ObraService {
   }
 
   Future<double> getConformidadeObra(int obraId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/$obraId/conformidade'));
+    final response = await http.get(Uri.parse('$urlBase/$obraId/conformidade'));
 
     if(response.statusCode == 200){
       final json = jsonDecode(response.body);
@@ -36,11 +36,11 @@ class ObraService {
     }
   }
 
-  Future<Map<String, dynamic>> contarStatusObra(int obraId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/$obraId/contagem-status'));
+  Future<Map<String, int>> contarStatusObra(int obraId) async {
+    final response = await http.get(Uri.parse('$urlBase/$obraId/contagem-status'));
 
     if (response.statusCode == 200){
-      Map<String, dynamic> resumo = jsonDecode(response.body);
+      Map<String, int> resumo = Map<String, int>.from(jsonDecode(response.body));
 
       return resumo;
     }
@@ -50,7 +50,7 @@ class ObraService {
   }
 
   Future<List<Obra>> listarObraPorUsuario(int usuarioId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/usuario/usuaroId'));
+    final response = await http.get(Uri.parse('$urlBase/usuario/usuaroId'));
 
     if (response.statusCode == 200) {
       List jsonResponse = jsonDecode(response.body);
@@ -62,7 +62,7 @@ class ObraService {
   }
 
   Future<CompartilhamentoDTO> obterQrCodeObra(int obraId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/$obraId/qrcode'));
+    final response = await http.get(Uri.parse('$urlBase/$obraId/qrcode'));
 
     if (response.statusCode == 200) {
       return CompartilhamentoDTO.fromJson(jsonDecode(response.body));
@@ -73,7 +73,7 @@ class ObraService {
   }
 
   Future<String> obterLinkObra(int obraId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/$obraId/link'));
+    final response = await http.get(Uri.parse('$urlBase/$obraId/link'));
 
     if(response.statusCode == 200){
       final json = jsonDecode(response.body);
@@ -86,7 +86,7 @@ class ObraService {
   }
 
   Future<Obra> getObra(int obraId) async {
-    final response = await http.get(Uri.parse('$urlBase/obras/$obraId'));
+    final response = await http.get(Uri.parse('$urlBase/$obraId'));
 
     if(response.statusCode == 200){
       final json = jsonDecode(response.body);
@@ -98,7 +98,7 @@ class ObraService {
   }
 
   Future<void> deletarObra(int obraId) async {
-    final response = await http.delete(Uri.parse('$urlBase/obras/$obraId'));
+    final response = await http.delete(Uri.parse('$urlBase/$obraId'));
 
     if(response.statusCode != 204){
       throw Exception('Erro ao deletar obra');
@@ -106,7 +106,7 @@ class ObraService {
   }
 
   Future<void> atualizarNome(int obraId, String novoNome) async {
-    final response = await http.patch(Uri.parse('$urlBase/obras/$obraId/nome?novoNome=$novoNome'));
+    final response = await http.patch(Uri.parse('$urlBase/$obraId/nome?novoNome=$novoNome'));
 
     if(response.statusCode != 200) {
       throw Exception('Erro ao mudar nome da obra');

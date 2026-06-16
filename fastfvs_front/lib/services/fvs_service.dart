@@ -1,19 +1,18 @@
 import 'dart:convert';
 
 import 'package:fastfvs_front/models/fvs.dart';
-import 'package:fastfvs_front/models/historico_fvs.dart';
 import 'package:http/http.dart' as http;
 
 class FvsService {
 
   //aqui tem as coisas de fvs incluindo o listar histórico
 
-  final String urlBase = "http://172.16.32.80:8080";
+  final String urlBase = "http://172.16.32.80:8080/api/fvs";
 
   Future<List<String>> listarFvsPadroes() async {
 
     final response = await http.get(
-        Uri.parse("$urlBase/api/fvs/padroes")
+        Uri.parse("$urlBase/padroes")
       );
 
       if(response.statusCode == 200){
@@ -31,7 +30,7 @@ class FvsService {
   Future<void> criarFVS(String titulo, int subsecaoId, int usuarioId) async {
 
     final response = await http.post(
-      Uri.parse('$urlBase/fvs?usuarioId=$usuarioId'),
+      Uri.parse('$urlBase?usuarioId=$usuarioId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'titulo': titulo,
@@ -39,9 +38,7 @@ class FvsService {
       }),
     );
 
-    if (response.statusCode == 201) {
-      final json = jsonDecode(response.body);
-    } else {
+    if (response.statusCode != 201) {
       throw Exception('Erro ao criar FVS');
     }
   }
@@ -77,26 +74,11 @@ class FvsService {
   }
 
   Future<void> deletarFvs(String fvsId) async {
-    final response = await http.get(Uri.parse('$urlBase/$fvsId'));
+    final response = await http.delete(Uri.parse('$urlBase/$fvsId'));
 
     if(response.statusCode != 204) {
       throw Exception("Erro ao excluir fvs");
     }
   }
 
-  Future<List<HistoricoFvs>> listarHistoricoFvs(String fvsId) async{
-      final response = await http.get(Uri.parse('$urlBase/ficha/$fvsId'));
-
-      if(response.statusCode == 200){
-
-        List jsonResponse = jsonDecode(response.body);
-
-        return jsonResponse
-          .map((historico) => HistoricoFvs.fromJson(historico))
-          .toList();
-
-      }else{
-        throw Exception("Erro ao Encontrar o histórico");
-      }
-  }
 }
