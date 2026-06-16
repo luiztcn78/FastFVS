@@ -2,7 +2,7 @@ class Subsecao {
   final int id;
   final String nome;
   final int obraId;
-  final int paiId;
+  final int? paiId;
 
   Subsecao({
     required this.id, 

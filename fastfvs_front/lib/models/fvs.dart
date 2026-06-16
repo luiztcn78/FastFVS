@@ -19,7 +19,7 @@ class Fvs {
       id: json['id'],
       titulo: json['titulo'],
       status: json['status'],
-      dataAbertura: json['dataAbertura'],
+      dataAbertura: DateTime.parse(json['dataAbertura']),
       dataUltimaEdicao: json['dataUltimaEdicao']
     );
   }
