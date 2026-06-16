@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fastfvs_front/view/pages/pagina_historico_fvs.dart';
 
 class PopUpStatusFvs extends StatefulWidget {
   final String nomeFvs;
@@ -28,7 +29,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs>{
 
     return Container(
       width: MediaQuery.of(context).size.width*0.9,
-      height: MediaQuery.of(context).size.height*0.4,
+      height: MediaQuery.of(context).size.height*0.6,
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).colorScheme.primary),
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -81,6 +82,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs>{
                     )
                   ],
                 ),
+                
                 Row(
                   children: [
                     Padding(
@@ -147,7 +149,37 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs>{
                     )
                   ],
                 ),
+                SizedBox(height: 30,),
+                SizedBox(
+                width: 240,
+                height: 48,
+                child: Material(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(30),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(30),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PaginaHistoricoFVS(),
+                        ),
+                      );
+                    },
+                    child: const Center(
+                      child: Text(
+                        'Histórico de Alterações',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
               ],
+              
             ),
           ),
           Padding(

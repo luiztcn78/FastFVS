@@ -13,7 +13,7 @@ class PaginaQrCode extends StatelessWidget {
           Container(
             alignment: Alignment.center,
             width: MediaQuery.of(context).size.width,
-            height: 150,
+            height: 100,
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary)
@@ -30,9 +30,10 @@ class PaginaQrCode extends StatelessWidget {
             height: MediaQuery.of(context).size.height*0.5,
             child: Image.network('https://media.istockphoto.com/id/1195424494/pt/vetorial/vector-qr-code-sample-for-smartphone-scanning-isolated-on-white-background.jpg?s=1024x1024&w=is&k=20&c=21li7zdG1T7DmNxn_E7W03UNHKZnFvUYTEle8asNlng='),
           ),
+          SizedBox(height: 30),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              minimumSize: Size(200, 40),
+              minimumSize: Size(200, 50),
               backgroundColor: Theme.of(context).colorScheme.primary
             ),
             onPressed: (){}, 

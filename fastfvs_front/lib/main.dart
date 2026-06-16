@@ -3,10 +3,12 @@ import 'package:fastfvs_front/config/theme_dark.dart';
 import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
 import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
 import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
-import 'package:fastfvs_front/view/pages/pagina_carregamento.dart ';
+import 'package:fastfvs_front/view/pages/pagina_carregamento.dart';
+import 'package:fastfvs_front/view/pages/pagina_login.dart';
 import 'package:flutter/material.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+
 void main() {
   runApp(const MyApp());
 }
@@ -19,21 +21,21 @@ class MyApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (_, ThemeMode currentMode, __) {
-
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'FastFVS',
           theme: ThemeLight.theme,
           darkTheme: ThemeDark.theme,
           themeMode: currentMode,
-          initialRoute: '/Carregamento',
+          initialRoute: '/login',
           onGenerateRoute: (settings) {
             Widget page = switch (settings.name) {
-              '/minhasObras'  => const PaginaMinhasObras(),
-              '/LerQRCode'    => const PaginaLerQrcode(),
+              '/login' => const PaginaLogin(),
+              '/minhasObras' => const PaginaMinhasObras(),
+              '/LerQRCode' => const PaginaLerQrcode(),
               '/Configuracao' => const PaginaConfiguracao(),
               '/Carregamento' => const PaginaCarregamento(),
-              _               => const PaginaMinhasObras(),
+              _ => const PaginaMinhasObras(),
             };
 
             return PageRouteBuilder(
@@ -49,4 +51,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

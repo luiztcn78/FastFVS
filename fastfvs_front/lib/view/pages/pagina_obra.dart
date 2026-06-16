@@ -49,7 +49,7 @@ void initState() {
 
   void _definirOpcoesParticao() {
     opcoes.value = [
-      OpcoesMenuSuspenso(nome: 'criar fvs', onTap: () {showDialog(
+      OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {showDialog(
           context: context,
           builder: (_) => AlertDialog(
             insetPadding: EdgeInsets.symmetric(horizontal: 16),
@@ -142,7 +142,10 @@ void initState() {
             onFechar: () => Navigator.pop(context),
           ),
         );
-      },),
+      }),
+      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+      }),
     ];
   }
   
