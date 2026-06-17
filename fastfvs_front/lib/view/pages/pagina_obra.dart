@@ -1,3 +1,4 @@
+import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_particao.dart';
 import 'package:fastfvs_front/view/pages/pagina_qr_code_obra.dart';
@@ -9,91 +10,86 @@ import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
 import 'package:fastfvs_front/view/widgets/popup_fvs_padroes.dart';
 import 'package:flutter/material.dart';
 
-class PaginaObra extends StatefulWidget{
+class PaginaObra extends StatefulWidget {
   const PaginaObra({super.key});
 
-@override
+  @override
   State<PaginaObra> createState() => PaginaObraState();
 }
 
 class PaginaObraState extends State<PaginaObra> {
-final controladorNavegacao = GlobalKey<NavigatorState>();
-final controladorNome = TextEditingController();
+  final controladorNavegacao = GlobalKey<NavigatorState>();
+  final controladorNome = TextEditingController();
 
-final List<String> particoes = ['Container A', 'Container B', 'Container C',];
+  // substituir pelos dados do back
+  final List<DadosParticao> particoes = [
+    DadosParticao(nome: 'Bloco A'),
+    DadosParticao(nome: 'Bloco B', mostrarVermelho: false),
+    DadosParticao(nome: 'Bloco C', mostrarCinza: false, mostrarAmarelo: false),
+  ];
 
-final ValueNotifier<List<OpcoesMenuSuspenso>> opcoes = ValueNotifier([]);
+  final ValueNotifier<List<OpcoesMenuSuspenso>> opcoes = ValueNotifier([]);
 
-String fvsCriada = '';
+  String fvsCriada = '';
 
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    _definirOpcoesInicio();
-  });
-}
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _definirOpcoesInicio();
+    });
+  }
 
   void _definirOpcoesInicio() {
-      opcoes.value = [
-        OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
-        }),
-        OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap:() => { showDialog(
-            context: context,
-            builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
-          )
-        }
-        )];
+    opcoes.value = [
+      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+      }),
+      OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap: () => {
+        showDialog(
+          context: context,
+          builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
+        )
+      }),
+    ];
   }
 
   void _definirOpcoesParticao() {
     opcoes.value = [
-      OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {showDialog(
+      OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {
+        showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            insetPadding: EdgeInsets.symmetric(horizontal: 16),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16),
             title: Text('Criar FVS', style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 22,
-                    color: Theme.of(context).colorScheme.onSecondary
-                    ),),
+              fontSize: 22,
+              color: Theme.of(context).colorScheme.onSecondary,
+            )),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              )
-              ),
+              side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+            ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 10,),
+                const SizedBox(height: 10),
                 TextField(
                   controller: controladorNome,
                   decoration: InputDecoration(
                     labelText: 'Nome da FVS',
                     border: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    )
+                      borderRadius: BorderRadius.zero,
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    )
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 2,
-                    )
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                     ),
-                    ),
+                  ),
                 ),
               ],
             ),
@@ -101,46 +97,37 @@ void initState() {
             actions: [
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Confirmar'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xff84E08F),
+                  backgroundColor: const Color(0xff84E08F),
                   foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  fixedSize: Size(120, 40),
-                  side: BorderSide( 
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  )
+                  fixedSize: const Size(120, 40),
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
+                child: const Text('Confirmar'),
               ),
               ElevatedButton(
                 onPressed: () {
-                fvsCriada = controladorNome.text;
-                Navigator.pop(context, true);
+                  fvsCriada = controladorNome.text;
+                  Navigator.pop(context, true);
                 },
                 style: ElevatedButton.styleFrom(
-                  fixedSize: Size(110, 40),
-                  backgroundColor: Color(0xffFF6D6D),
+                  fixedSize: const Size(110, 40),
+                  backgroundColor: const Color(0xffFF6D6D),
                   foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  side: BorderSide( 
-                    color: Theme.of(context).colorScheme.primary,
-                    width: 2,
-                  )
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                 ),
-                child: Text('Cancelar'),
+                child: const Text('Cancelar'),
               ),
             ],
           ),
         );
-      },
-    ),
+      }),
       OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
         showDialog(
           context: context,
           barrierDismissible: true,
           barrierColor: Colors.transparent,
-          builder: (_) => PopupFvsPadroes(
-            onFechar: () => Navigator.pop(context),
-          ),
+          builder: (_) => PopupFvsPadroes(onFechar: () => Navigator.pop(context)),
         );
       }),
       OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
@@ -148,10 +135,9 @@ void initState() {
       }),
     ];
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    //pop scope configura o botao voltar e desfarça o navegador local
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -170,13 +156,13 @@ void initState() {
           builder: (context, value, _) => BotaoCriarFvs(opcoes: value),
         ),
         body: Column(
-            children: [
-              InformacaoObra(),
-              Expanded(
-                child: Navigator(
-                  key: controladorNavegacao,
-                  onGenerateRoute: (settings) {
-                    switch (settings.name) {
+          children: [
+            InformacaoObra(),
+            Expanded(
+              child: Navigator(
+                key: controladorNavegacao,
+                onGenerateRoute: (settings) {
+                  switch (settings.name) {
                     case '/particao':
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _definirOpcoesParticao();
@@ -185,18 +171,18 @@ void initState() {
                         builder: (context) => PaginaParticao(),
                       );
                     default:
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
                         _definirOpcoesInicio();
                       });
                       return MaterialPageRoute(
-                        builder: (context) => ListaContainersParticao(particoes: particoes)
+                        builder: (context) => ListaContainersParticao(particoes: particoes),
                       );
-                    }
-                  },
-                )
-              )
-            ],
-          ),
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

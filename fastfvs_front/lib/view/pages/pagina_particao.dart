@@ -1,3 +1,4 @@
+import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:fastfvs_front/view/pages/sessao_fvs.dart';
 import 'package:fastfvs_front/view/widgets/botao_particao_baixo.dart';
 import 'package:fastfvs_front/view/widgets/container_particao.dart';
@@ -14,40 +15,48 @@ class PaginaParticao extends StatefulWidget {
 class PaginaParticaoState extends State<PaginaParticao> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
 
+  // pegar os dados do back
+  final List<DadosParticao> subParticoes = [
+    DadosParticao(nome: 'Pavimento A'),
+    DadosParticao(nome: 'Pavimento B', mostrarVermelho: false),
+    DadosParticao(nome: 'Pavimento C', mostrarCinza: false),
+  ];
+
   @override
   Widget build(BuildContext context) {
-
-    final List<String> particoes = ['Pavimento A', 'Pavimento B', 'Pavimento C',];
-
     return Column(
       children: [
-       ContainerParticao(nome:'Bloco A', largura: MediaQuery.of(context).size.width*0.9, serBotao: false,),
-       Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-        BotaoParticao(caminho: "/Fvs", nome: "FVS", navegador: controladorNavegacao),
-        BotaoParticao(caminho: "/Subsessao", nome: "Sub-Sessões", navegador: controladorNavegacao),
-        ],
-       ),
-       Expanded(
-        child: Navigator(
-          key: controladorNavegacao,
-          onGenerateRoute: (settings) {
-            switch (settings.name) {
-            case '/Subsessao':
-              return PageRouteBuilder(
-                pageBuilder: (context, _, __) => ListaContainersParticao(particoes: particoes),
-                transitionDuration: Duration.zero, // sem animação
-              );
-            default:
-              return PageRouteBuilder(
-                pageBuilder: (context, _, __) => SessaoFvs(),
-                transitionDuration: Duration.zero,
-              );
-            }
-          },
-        )
-       )
+        ContainerParticao(
+          nome: 'Bloco A',
+          largura: MediaQuery.of(context).size.width * 0.9,
+          serBotao: false,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BotaoParticao(caminho: "/Fvs", nome: "FVS", navegador: controladorNavegacao),
+            BotaoParticao(caminho: "/Subsessao", nome: "Sub-Sessões", navegador: controladorNavegacao),
+          ],
+        ),
+        Expanded(
+          child: Navigator(
+            key: controladorNavegacao,
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/Subsessao':
+                  return PageRouteBuilder(
+                    pageBuilder: (context, _, __) => ListaContainersParticao(particoes: subParticoes),
+                    transitionDuration: Duration.zero,
+                  );
+                default:
+                  return PageRouteBuilder(
+                    pageBuilder: (context, _, __) => SessaoFvs(),
+                    transitionDuration: Duration.zero,
+                  );
+              }
+            },
+          ),
+        ),
       ],
     );
   }
