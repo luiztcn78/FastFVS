@@ -14,12 +14,8 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF3C1E01),
-        title: Text('FastFVS', style: TextStyle(color: Colors.white)),
-        automaticallyImplyLeading: false,
-      ),
       body: Column(
         children: [
           Container(
@@ -48,7 +44,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   child: Icon(
                     Icons.person_outline,
                     size: 60,
-                    color: Color(0xFF4A3728),
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
                 SizedBox(height: 12),
@@ -57,7 +53,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF4A3728),
+                    color: Theme.of(context).colorScheme.onSecondary,
                   ),
                 ),
                 SizedBox(height: 12),
@@ -67,7 +63,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
           Divider(height: 1, color: Colors.grey),
           Expanded(
             child: Container(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
               padding: EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

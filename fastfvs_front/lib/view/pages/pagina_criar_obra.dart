@@ -28,7 +28,6 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
   int _numPavimentos = 1;
   int _numApts = 1;
   int _numeracaoInicio = 1;
-  int _numeracaoFim = 1;
 
   final Map<String, bool> _fvs = {
     'FVS - Hidráulica': false,
@@ -598,36 +597,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
           }),
         ),
         const SizedBox(height: 18),
-        Text(
-          'Padrão de Numeração:',
-          style: TextStyle(
-            color: cor.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ContadorNumero(
-              valor: _numeracaoInicio,
-              onAumentar: () => setState(() => _numeracaoInicio++),
-              onDiminuir: () => setState(() {
-                if (_numeracaoInicio > 1) _numeracaoInicio--;
-              }),
-            ),
-            Text('a', style: TextStyle(color: cor.primary, fontSize: 16)),
-            ContadorNumero(
-              valor: _numeracaoFim,
-              onAumentar: () => setState(() => _numeracaoFim++),
-              onDiminuir: () => setState(() {
-                if (_numeracaoFim > 1) _numeracaoFim--;
-              }),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
+        
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
