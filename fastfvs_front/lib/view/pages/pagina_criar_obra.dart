@@ -8,6 +8,27 @@ class _Subsecao {
     : filhos = filhos ?? [];
 }
 
+// Representa uma linha de configuração da Criação Automática:
+// um nome-base para o nível (ex: "Bloco") + uma quantidade.
+class _NivelAuto {
+  TextEditingController nomeController;
+  int quantidade;
+  _NivelAuto({String nome = '', this.quantidade = 1})
+    : nomeController = TextEditingController(text: nome);
+}
+
+// Ícones usados para diferenciar visualmente cada profundidade da árvore.
+// Não têm mais relação com um nome fixo (Bloco/Pavimento/Apt), apenas
+// repetem em ciclo conforme o nível vai ficando mais profundo.
+const List<IconData> _iconesPorProfundidade = [
+  Icons.view_module,
+  Icons.layers,
+  Icons.door_front_door,
+  Icons.king_bed,
+  Icons.bathtub,
+  Icons.category,
+];
+
 class PaginaCriarObra extends StatefulWidget {
   const PaginaCriarObra({super.key});
 
@@ -18,16 +39,17 @@ class PaginaCriarObra extends StatefulWidget {
 class _PaginaCriarObraState extends State<PaginaCriarObra> {
   final TextEditingController _nomeController = TextEditingController();
 
-  List<_Subsecao> _blocos = [];
+  // Antes: _blocos (só nível 1). Agora: raiz da árvore, qualquer profundidade.
+  List<_Subsecao> _raiz = [];
   final Set<_Subsecao> _expandidos = {};
 
   bool _secaoCriacaoAberta = false;
   bool _secaoFvsAberta = false;
 
-  int _numBlocos = 1;
-  int _numPavimentos = 1;
-  int _numApts = 1;
-  int _numeracaoInicio = 1;
+  // Antes: _numBlocos / _numPavimentos / _numApts / _numeracaoInicio.
+  // Agora: lista dinâmica de níveis (nome + quantidade), tantos quanto
+  // o usuário quiser.
+  List<_NivelAuto> _niveisAuto = [_NivelAuto()];
 
   final Map<String, bool> _fvs = {
     'FVS - Hidráulica': false,
@@ -39,26 +61,66 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     'FVS - Piso': false,
   };
 
-  void _aplicarCriacaoAutomatica() {
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    for (final nivel in _niveisAuto) {
+      nivel.nomeController.dispose();
+    }
+    super.dispose();
+  }
+
+  // ---------------------------------------------------------------------
+  // Criação Automática (N níveis dinâmicos)
+  // ---------------------------------------------------------------------
+
+  void _adicionarNivelAuto() {
+    setState(() => _niveisAuto.add(_NivelAuto()));
+  }
+
+  void _removerNivelAuto(_NivelAuto nivel) {
+    if (_niveisAuto.length <= 1) return; // sempre mantém ao menos 1 nível
     setState(() {
-      _blocos = List.generate(_numBlocos, (b) {
+      nivel.nomeController.dispose();
+      _niveisAuto.remove(nivel);
+    });
+  }
+
+  void _aplicarCriacaoAutomatica() {
+    for (final nivel in _niveisAuto) {
+      if (nivel.nomeController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preencha o nome de todos os níveis.'),
+          ),
+        );
+        return;
+      }
+    }
+
+    // Gera recursivamente a árvore a partir do índice de nível atual.
+    List<_Subsecao> gerarNivel(int indice) {
+      if (indice >= _niveisAuto.length) return [];
+      final nivel = _niveisAuto[indice];
+      final nomeBase = nivel.nomeController.text.trim();
+      return List.generate(nivel.quantidade, (i) {
         return _Subsecao(
-          nome: 'Bloco ${String.fromCharCode(65 + b)}',
-          filhos: List.generate(_numPavimentos, (p) {
-            return _Subsecao(
-              nome: 'Pav ${p + 1}',
-              filhos: List.generate(_numApts, (a) {
-                final num = _numeracaoInicio + (p * _numApts) + a;
-                return _Subsecao(nome: 'Apt $num');
-              }),
-            );
-          }),
+          nome: '$nomeBase ${i + 1}',
+          filhos: gerarNivel(indice + 1),
         );
       });
+    }
+
+    setState(() {
+      _raiz = gerarNivel(0);
       _expandidos.clear();
       _secaoCriacaoAberta = false;
     });
   }
+
+  // ---------------------------------------------------------------------
+  // Estrutura manual (árvore genérica, qualquer profundidade)
+  // ---------------------------------------------------------------------
 
   void _abrirDialogoNome({
     required String titulo,
@@ -120,70 +182,39 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     );
   }
 
-  void _adicionarBloco() {
+  // Adiciona um filho em qualquer lista (raiz ou filhos de um nó).
+  // 'pai' é opcional: se informado, o pai é expandido automaticamente
+  // para o novo filho ficar visível.
+  void _adicionarFilho(List<_Subsecao> lista, {_Subsecao? pai}) {
     _abrirDialogoNome(
-      titulo: 'Nome do Bloco',
-      valorInicial: 'Bloco ${String.fromCharCode(65 + _blocos.length)}',
-      onConfirmar: (nome) {
-        if (nome.isNotEmpty) setState(() => _blocos.add(_Subsecao(nome: nome)));
-      },
-    );
-  }
-
-  void _editarBloco(_Subsecao bloco) {
-    _abrirDialogoNome(
-      titulo: 'Editar Bloco',
-      valorInicial: bloco.nome,
-      onConfirmar: (nome) {
-        if (nome.isNotEmpty) setState(() => bloco.nome = nome);
-      },
-    );
-  }
-
-  void _adicionarPavimento(_Subsecao bloco) {
-    _abrirDialogoNome(
-      titulo: 'Nome do Pavimento',
-      valorInicial: 'Pav ${bloco.filhos.length + 1}',
+      titulo: 'Adicionar Item',
+      valorInicial: 'Item ${lista.length + 1}',
       onConfirmar: (nome) {
         if (nome.isNotEmpty) {
-          setState(() => bloco.filhos.add(_Subsecao(nome: nome)));
-          _expandidos.add(bloco);
+          setState(() {
+            lista.add(_Subsecao(nome: nome));
+            if (pai != null) _expandidos.add(pai);
+          });
         }
       },
     );
   }
 
-  void _editarPavimento(_Subsecao pav) {
+  void _editarNo(_Subsecao no) {
     _abrirDialogoNome(
-      titulo: 'Editar Pavimento',
-      valorInicial: pav.nome,
+      titulo: 'Editar Item',
+      valorInicial: no.nome,
       onConfirmar: (nome) {
-        if (nome.isNotEmpty) setState(() => pav.nome = nome);
+        if (nome.isNotEmpty) setState(() => no.nome = nome);
       },
     );
   }
 
-  void _adicionarApt(_Subsecao pav) {
-    _abrirDialogoNome(
-      titulo: 'Nome do Apartamento',
-      valorInicial: 'Apt ${pav.filhos.length + 1}',
-      onConfirmar: (nome) {
-        if (nome.isNotEmpty) {
-          setState(() => pav.filhos.add(_Subsecao(nome: nome)));
-          _expandidos.add(pav);
-        }
-      },
-    );
-  }
-
-  void _editarApt(_Subsecao apt) {
-    _abrirDialogoNome(
-      titulo: 'Editar Apartamento',
-      valorInicial: apt.nome,
-      onConfirmar: (nome) {
-        if (nome.isNotEmpty) setState(() => apt.nome = nome);
-      },
-    );
+  void _removerNo(List<_Subsecao> listaPai, _Subsecao no) {
+    setState(() {
+      listaPai.remove(no);
+      _expandidos.remove(no);
+    });
   }
 
   bool _validar() {
@@ -331,6 +362,10 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     );
   }
 
+  // ---------------------------------------------------------------------
+  // Card "Estrutura" — agora desenha a árvore recursivamente, sem nomes fixos
+  // ---------------------------------------------------------------------
+
   Widget _cardEstrutura(ColorScheme cor) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -340,7 +375,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
       ),
       child: Column(
         children: [
-          if (_blocos.isEmpty)
+          if (_raiz.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Text(
@@ -352,15 +387,15 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                 textAlign: TextAlign.center,
               ),
             ),
-          ..._blocos.map((bloco) => _blocoWidget(cor, bloco)),
+          ..._raiz.map((no) => _noWidget(cor, _raiz, no, 0)),
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
-              onPressed: _adicionarBloco,
+              onPressed: () => _adicionarFilho(_raiz),
               icon: Icon(Icons.add, color: cor.primary, size: 18),
               label: Text(
-                'Adicionar Bloco',
+                'Adicionar Item',
                 style: TextStyle(color: cor.primary, fontSize: 13),
               ),
             ),
@@ -370,96 +405,51 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     );
   }
 
-  Widget _blocoWidget(ColorScheme cor, _Subsecao bloco) {
-    final expandido = _expandidos.contains(bloco);
-    return Column(
-      children: [
-        Row(
-          children: [
-            GestureDetector(
-              onTap: () => setState(
-                () => expandido
-                    ? _expandidos.remove(bloco)
-                    : _expandidos.add(bloco),
-              ),
-              child: Icon(
-                expandido ? Icons.expand_more : Icons.chevron_right,
-                color: cor.primary,
-              ),
-            ),
-            Icon(Icons.view_module, color: cor.primary, size: 18),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(bloco.nome, style: TextStyle(color: cor.primary)),
-            ),
-            GestureDetector(
-              onTap: () => _editarBloco(bloco),
-              child: Icon(Icons.edit, color: cor.primary, size: 18),
-            ),
-            const SizedBox(width: 8),
-            GestureDetector(
-              onTap: () => _adicionarPavimento(bloco),
-              child: Icon(Icons.add, color: cor.primary, size: 20),
-            ),
-            const SizedBox(width: 4),
-            GestureDetector(
-              onTap: () => setState(() {
-                _blocos.remove(bloco);
-                _expandidos.remove(bloco);
-              }),
-              child: Icon(
-                Icons.delete_outline,
-                color: cor.primary.withOpacity(0.6),
-                size: 18,
-              ),
-            ),
-          ],
-        ),
-        if (expandido)
-          ...bloco.filhos.map((pav) => _pavimentoWidget(cor, bloco, pav)),
-      ],
-    );
-  }
+  // Widget único e recursivo: substitui _blocoWidget / _pavimentoWidget /
+  // _aptWidget. Funciona para qualquer profundidade de hierarquia.
+  Widget _noWidget(
+    ColorScheme cor,
+    List<_Subsecao> listaPai,
+    _Subsecao no,
+    int profundidade,
+  ) {
+    final expandido = _expandidos.contains(no);
+    final icone = _iconesPorProfundidade[profundidade % _iconesPorProfundidade.length];
 
-  Widget _pavimentoWidget(ColorScheme cor, _Subsecao bloco, _Subsecao pav) {
-    final expandido = _expandidos.contains(pav);
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16),
+          padding: EdgeInsets.only(left: profundidade * 16.0),
           child: Row(
             children: [
               GestureDetector(
                 onTap: () => setState(
                   () => expandido
-                      ? _expandidos.remove(pav)
-                      : _expandidos.add(pav),
+                      ? _expandidos.remove(no)
+                      : _expandidos.add(no),
                 ),
                 child: Icon(
                   expandido ? Icons.expand_more : Icons.chevron_right,
                   color: cor.primary,
                 ),
               ),
-              Icon(Icons.layers, color: cor.primary, size: 18),
+              Icon(icone, color: cor.primary, size: 18),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(pav.nome, style: TextStyle(color: cor.primary)),
+                child: Text(no.nome, style: TextStyle(color: cor.primary)),
               ),
               GestureDetector(
-                onTap: () => _editarPavimento(pav),
+                onTap: () => _editarNo(no),
                 child: Icon(Icons.edit, color: cor.primary, size: 18),
               ),
               const SizedBox(width: 8),
               GestureDetector(
-                onTap: () => _adicionarApt(pav),
+                onTap: () => _adicionarFilho(no.filhos, pai: no),
                 child: Icon(Icons.add, color: cor.primary, size: 20),
               ),
               const SizedBox(width: 4),
               GestureDetector(
-                onTap: () => setState(() {
-                  bloco.filhos.remove(pav);
-                  _expandidos.remove(pav);
-                }),
+                onTap: () => _removerNo(listaPai, no),
                 child: Icon(
                   Icons.delete_outline,
                   color: cor.primary.withOpacity(0.6),
@@ -469,37 +459,11 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             ],
           ),
         ),
-        if (expandido) ...pav.filhos.map((apt) => _aptWidget(cor, pav, apt)),
+        if (expandido)
+          ...no.filhos.map(
+            (filho) => _noWidget(cor, no.filhos, filho, profundidade + 1),
+          ),
       ],
-    );
-  }
-
-  Widget _aptWidget(ColorScheme cor, _Subsecao pav, _Subsecao apt) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 32),
-      child: Row(
-        children: [
-          Icon(Icons.chevron_right, color: cor.primary),
-          Icon(Icons.door_front_door, color: cor.primary, size: 18),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(apt.nome, style: TextStyle(color: cor.primary)),
-          ),
-          GestureDetector(
-            onTap: () => _editarApt(apt),
-            child: Icon(Icons.edit, color: cor.primary, size: 18),
-          ),
-          const SizedBox(width: 8),
-          GestureDetector(
-            onTap: () => setState(() => pav.filhos.remove(apt)),
-            child: Icon(
-              Icons.delete_outline,
-              color: cor.primary.withOpacity(0.6),
-              size: 18,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -552,6 +516,10 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     );
   }
 
+  // ---------------------------------------------------------------------
+  // Card "Criação Automática" — N níveis dinâmicos (nome + quantidade)
+  // ---------------------------------------------------------------------
+
   Widget _conteudoCriacaoAutomatica(ColorScheme cor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,45 +527,94 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
         Divider(color: cor.primary.withOpacity(0.3)),
         const SizedBox(height: 4),
         Text(
-          'Definir padrão de:',
+          'Definir níveis de hierarquia:',
           style: TextStyle(
             color: cor.primary,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
+        Text(
+          'A ordem abaixo define a hierarquia (do nível 1, mais externo, ao mais interno).',
+          style: TextStyle(color: cor.primary.withOpacity(0.6), fontSize: 11),
+        ),
         const SizedBox(height: 14),
-        _linhaContador(
-          cor,
-          'N° de Blocos:',
-          _numBlocos,
-          () => setState(() => _numBlocos++),
-          () => setState(() {
-            if (_numBlocos > 1) _numBlocos--;
-          }),
+        ..._niveisAuto.asMap().entries.map((entry) {
+          final indice = entry.key;
+          final nivel = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Nível ${indice + 1}',
+                  style: TextStyle(
+                    color: cor.primary.withOpacity(0.6),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: nivel.nomeController,
+                        style: TextStyle(color: cor.onSecondary, fontSize: 13),
+                        decoration: InputDecoration(
+                          isDense: true,
+                          hintText: 'Ex: Bloco, Quarto...',
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cor.primary, width: 1.5),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: cor.primary, width: 1.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ContadorNumero(
+                      valor: nivel.quantidade,
+                      onAumentar: () => setState(() => nivel.quantidade++),
+                      onDiminuir: () => setState(() {
+                        if (nivel.quantidade > 1) nivel.quantidade--;
+                      }),
+                    ),
+                    if (_niveisAuto.length > 1) ...[
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () => _removerNivelAuto(nivel),
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: cor.primary.withOpacity(0.6),
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          );
+        }),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: _adicionarNivelAuto,
+            icon: Icon(Icons.add, color: cor.primary, size: 18),
+            label: Text(
+              'Adicionar Nível',
+              style: TextStyle(color: cor.primary, fontSize: 13),
+            ),
+          ),
         ),
-        const SizedBox(height: 10),
-        _linhaContador(
-          cor,
-          'Pavimentos por Bloco:',
-          _numPavimentos,
-          () => setState(() => _numPavimentos++),
-          () => setState(() {
-            if (_numPavimentos > 1) _numPavimentos--;
-          }),
-        ),
-        const SizedBox(height: 10),
-        _linhaContador(
-          cor,
-          'Apts por Pavimento:',
-          _numApts,
-          () => setState(() => _numApts++),
-          () => setState(() {
-            if (_numApts > 1) _numApts--;
-          }),
-        ),
-        const SizedBox(height: 18),
-        
+        const SizedBox(height: 8),
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -610,26 +627,6 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             ),
             child: Text('Aplicar', style: TextStyle(color: cor.onPrimary)),
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _linhaContador(
-    ColorScheme cor,
-    String label,
-    int valor,
-    VoidCallback onAumentar,
-    VoidCallback onDiminuir,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(color: cor.primary, fontSize: 13)),
-        ContadorNumero(
-          valor: valor,
-          onAumentar: onAumentar,
-          onDiminuir: onDiminuir,
         ),
       ],
     );

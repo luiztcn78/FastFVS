@@ -19,7 +19,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
       body: Column(
         children: [
           Container(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.surface,
             width: double.infinity,
             child: Column(
               children: [
@@ -63,7 +63,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
           Divider(height: 1, color: Colors.grey),
           Expanded(
             child: Container(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.surface,
               padding: EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
