@@ -43,16 +43,30 @@ class InformacaoObra extends StatelessWidget {
         Expanded(
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: EdgeInsets.only(left: 7.0, right: 3.0, bottom: 4.0),
-                  child: Text("Residencial Flores", 
-                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 22,
-                    color: Theme.of(context).colorScheme.onSecondary
+              Padding(
+                padding: const EdgeInsets.only(left: 7.0, right: 15.0, bottom: 4.0, top: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Residencial Flores", 
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      fontSize: 22,
+                      color: Theme.of(context).colorScheme.onSecondary
+                      ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: () {
+                        // puxar pra pagin de editar oubra ou aquelade adicionar sla
+                        // Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaEditarObra()));
+                      },
+                      child: Icon(
+                        Icons.edit_square, // Ícone que remete ao da imagem
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 28,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Align(

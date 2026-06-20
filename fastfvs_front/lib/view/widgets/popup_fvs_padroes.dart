@@ -10,18 +10,41 @@ class PopupFvsPadroes extends StatefulWidget {
 }
 
 class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
-  bool _fvsHidraulica = false;
-  bool _fvsAzulejo = false;
-  bool _fvsConcretagem = false;
-  bool _fvsAviamento = false;
-  bool _fvsPintura = false;
-  bool _fvsEletrica = false;
-  bool _fvsPiso = false;
+  // Lista de FVS tirando as variáveis isoladas
+  final Map<String, bool> _fvsLista = {
+    "FVS - Hidráulica": false,
+    "FVS - Azulejo": false,
+    "FVS - Concretagem": false,
+    "FVS - Aviamento": false,
+    "FVS - Pintura": false,
+    "FVS - Instalação Elétrica": false,
+    "FVS - Piso": false,
+    "FVS - Fiação Elétrica": false,
+    "FVS - Encanamento": false,
+    "FVS - Cerâmica": false,
+    "FVS - Móveis": false,
+  };
+
+  bool _adicionarEmTodasSubsecoes = false;
 
   @override
   Widget build(BuildContext context) {
     final largura = MediaQuery.of(context).size.width;
-    final cor = Theme.of(context).colorScheme;
+    
+    // Capturando o ColorScheme e verificando se está no Dark Mode
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = colorScheme.brightness == Brightness.dark;
+
+    // LÓGICA DAS CORES:
+    // Fundo: Branco no Light / Marrom (primary) no Dark
+    final corFundo = isDark ? colorScheme.primary : Colors.white;
+    
+    // Textos/Bordas: Marrom no Light / Branco no Dark (Essa é exatamente a onSecondary)
+    final corElementos = colorScheme.onSecondary;
+    
+    // O "V" de dentro do checkbox para não sumir
+    // (Branco no Light / Marrom no Dark)
+    final corCheck = isDark ? colorScheme.primary : Colors.white;
 
     return Stack(
       children: [
@@ -33,13 +56,15 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
           top: 60,
           left: largura * 0.05,
           right: largura * 0.05,
+          // Limitando a altura para que o Scroll funcione em telas menores
+          bottom: MediaQuery.of(context).size.height * 0.1, 
           child: Material(
             elevation: 10,
             borderRadius: BorderRadius.circular(16),
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: corFundo, // <--- Aplicando cor correta ao fundo
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -50,52 +75,49 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: cor.primary,
+                      color: corElementos, // <--- Aplicando cor ao título
                     ),
                   ),
                   const SizedBox(height: 12),
 
-                  _linhaFvs(
-                    cor,
-                    "FVS - Hidráulica",
-                    _fvsHidraulica,
-                    (v) => setState(() => _fvsHidraulica = v!),
+                  // Lista com Scroll
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: _fvsLista.keys.map((String chave) {
+                          return _linhaFvs(
+                            corElementos, 
+                            corCheck, 
+                            chave,
+                            _fvsLista[chave]!,
+                            (v) => setState(() => _fvsLista[chave] = v!),
+                          );
+                        }).toList(),
+                      ),
+                    ),
                   ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Azulejo",
-                    _fvsAzulejo,
-                    (v) => setState(() => _fvsAzulejo = v!),
-                  ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Concretagem",
-                    _fvsConcretagem,
-                    (v) => setState(() => _fvsConcretagem = v!),
-                  ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Aviamento",
-                    _fvsAviamento,
-                    (v) => setState(() => _fvsAviamento = v!),
-                  ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Pintura",
-                    _fvsPintura,
-                    (v) => setState(() => _fvsPintura = v!),
-                  ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Instalação Elétrica",
-                    _fvsEletrica,
-                    (v) => setState(() => _fvsEletrica = v!),
-                  ),
-                  _linhaFvs(
-                    cor,
-                    "FVS - Piso",
-                    _fvsPiso,
-                    (v) => setState(() => _fvsPiso = v!),
+
+                  const SizedBox(height: 12),
+                  
+                  // Checkbox "Adicionar em todas as Subseções"
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Checkbox(
+                        value: _adicionarEmTodasSubsecoes,
+                        onChanged: (v) => setState(() => _adicionarEmTodasSubsecoes = v!),
+                        activeColor: corElementos,
+                        checkColor: corCheck, // <--- Mantendo o V visível
+                      ),
+                      Text(
+                        "Adicionar em todas\nas Subseções",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: corElementos,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
                   ),
 
                   const SizedBox(height: 16),
@@ -139,8 +161,10 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
     );
   }
 
+  // Ajustado para receber a cor do "V" (corCheck) também
   Widget _linhaFvs(
-    ColorScheme cor,
+    Color corAtiva, 
+    Color corCheck,
     String texto,
     bool valor,
     Function(bool?) onChange,
@@ -148,8 +172,13 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(texto, style: TextStyle(color: cor.primary)),
-        Checkbox(value: valor, onChanged: onChange, activeColor: cor.primary),
+        Text(texto, style: TextStyle(color: corAtiva)),
+        Checkbox(
+          value: valor, 
+          onChanged: onChange, 
+          activeColor: corAtiva,
+          checkColor: corCheck,
+        ),
       ],
     );
   }

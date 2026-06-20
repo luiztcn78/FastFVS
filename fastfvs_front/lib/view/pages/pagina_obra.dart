@@ -59,67 +59,101 @@ class PaginaObraState extends State<PaginaObra> {
       OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {
         showDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-            title: Text('Criar FVS', style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              fontSize: 22,
-              color: Theme.of(context).colorScheme.onSecondary,
-            )),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 10),
-                TextField(
-                  controller: controladorNome,
-                  decoration: InputDecoration(
-                    labelText: 'Nome da FVS',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.zero,
-                      borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                    ),
+          builder: (context) {
+            // Variável de estado local do dialog
+            bool adicionarEmTodasSubsecoes = false; 
+
+            return StatefulBuilder(
+              builder: (context, setStateDialog) {
+                return AlertDialog(
+                  insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  title: Text('Criar FVS', style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    fontSize: 22,
+                    color: Theme.of(context).colorScheme.onSecondary,
+                  )),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
-                ),
-              ],
-            ),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: [
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff84E08F),
-                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  fixedSize: const Size(120, 40),
-                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                ),
-                child: const Text('Confirmar'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  fvsCriada = controladorNome.text;
-                  Navigator.pop(context, true);
-                },
-                style: ElevatedButton.styleFrom(
-                  fixedSize: const Size(110, 40),
-                  backgroundColor: const Color(0xffFF6D6D),
-                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                ),
-                child: const Text('Cancelar'),
-              ),
-            ],
-          ),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: controladorNome,
+                        decoration: InputDecoration(
+                          labelText: 'Nome da FVS',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.zero,
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.zero,
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.zero,
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Novo Checkbox
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: adicionarEmTodasSubsecoes,
+                            activeColor: Theme.of(context).colorScheme.primary,
+                            onChanged: (v) {
+                              setStateDialog(() {
+                                adicionarEmTodasSubsecoes = v ?? false;
+                              });
+                            },
+                          ),
+                          Text(
+                            "Adicionar em todas\nas Subseções",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSecondary,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  actionsAlignment: MainAxisAlignment.spaceBetween,
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Você pode acessar a variável `adicionarEmTodasSubsecoes` aqui
+                        fvsCriada = controladorNome.text;
+                        Navigator.pop(context, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xff84E08F),
+                        foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                        fixedSize: const Size(120, 40),
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                      ),
+                      child: const Text('Confirmar'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        fixedSize: const Size(110, 40),
+                        backgroundColor: const Color(0xffFF6D6D),
+                        foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                        side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                      ),
+                      child: const Text('Cancelar'),
+                    ),
+                  ],
+                );
+              }
+            );
+          }
         );
       }),
       OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
