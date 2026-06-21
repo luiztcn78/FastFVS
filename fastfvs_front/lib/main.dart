@@ -1,5 +1,6 @@
 import 'package:fastfvs_front/config/theme_light.dart';
 import 'package:fastfvs_front/config/theme_dark.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:fastfvs_front/view/pages/pagina_configuracao.dart';
 import 'package:fastfvs_front/view/pages/pagina_ler_qrcode.dart';
 import 'package:fastfvs_front/view/pages/pagina_minhas_obras.dart';
@@ -9,12 +10,16 @@ import 'package:flutter/material.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final temSessao = await SessaoUsuario.recarregarSessaoSalva();
+  runApp(MyApp(rotaInicial: temSessao ? '/minhasObras' : '/login'));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String rotaInicial;
+
+  const MyApp({super.key, required this.rotaInicial});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeLight.theme,
           darkTheme: ThemeDark.theme,
           themeMode: currentMode,
-          initialRoute: '/login',
+          initialRoute: rotaInicial,
           onGenerateRoute: (settings) {
             Widget page = switch (settings.name) {
               '/login' => const PaginaLogin(),

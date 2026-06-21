@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:image_picker/image_picker.dart';
 import 'package:fastfvs_front/models/usuario.dart';
 import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:fastfvs_front/services/usuario_service.dart';
+import 'package:fastfvs_front/utils/foto_perfil_utils.dart'; // Import adicionado
 import 'package:flutter/material.dart';
 
 class PaginaPerfil extends StatefulWidget {
@@ -31,6 +35,45 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(mensagem)));
+  }
+
+  // Método _buildFotoPerfil removido
+
+  Future<void> _editarFoto() async {
+    final usuario = SessaoUsuario.usuario;
+    if (usuario == null) return;
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? imagem = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 70,
+    );
+
+    if (imagem == null) return;
+
+    setState(() => _salvando = true);
+    try {
+      final Uint8List bytes = await imagem.readAsBytes();
+      final String base64Foto = base64Encode(bytes);
+
+      await _usuarioService.atualizarFoto(usuario.id, base64Foto);
+
+      SessaoUsuario.iniciar(
+        Usuario(
+          id: usuario.id,
+          nome: usuario.nome,
+          email: usuario.email,
+          fotoPerfil: base64Foto,
+        ),
+      );
+      setState(() {});
+    } catch (e) {
+      _mostrarErro(e.toString().replaceFirst('Exception: ', ''));
+    } finally {
+      if (mounted) setState(() => _salvando = false);
+    }
   }
 
   Future<void> _salvarNome(String novoNome) async {
@@ -126,27 +169,31 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   alignment: Alignment.centerRight,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.edit_outlined, size: 18),
-                        SizedBox(width: 4),
-                        Text('Editar foto'),
-                      ],
+                    child: InkWell(
+                      onTap: _salvando ? null : _editarFoto,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.edit_outlined, size: 18),
+                          SizedBox(width: 4),
+                          Text('Editar foto'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+                // CircleAvatar atualizado com função compartilhada
                 CircleAvatar(
                   radius: 50,
                   backgroundColor: const Color(0xFFE0D7F5),
-                  backgroundImage:
-                      (SessaoUsuario.usuario?.fotoPerfil != null &&
-                          SessaoUsuario.usuario!.fotoPerfil!.isNotEmpty)
-                      ? NetworkImage(SessaoUsuario.usuario!.fotoPerfil!)
-                      : null,
+                  backgroundImage: construirImagemPerfil(
+                    SessaoUsuario.usuario?.fotoPerfil,
+                  ),
                   child:
-                      (SessaoUsuario.usuario?.fotoPerfil == null ||
-                          SessaoUsuario.usuario!.fotoPerfil!.isEmpty)
+                      construirImagemPerfil(
+                            SessaoUsuario.usuario?.fotoPerfil,
+                          ) ==
+                          null
                       ? Icon(
                           Icons.person_outline,
                           size: 60,

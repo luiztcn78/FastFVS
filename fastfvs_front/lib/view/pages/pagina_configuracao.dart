@@ -1,9 +1,11 @@
 import 'package:fastfvs_front/main.dart';
 import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:fastfvs_front/services/usuario_service.dart';
+import 'package:fastfvs_front/utils/foto_perfil_utils.dart'; // Import adicionado
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_perfil.dart';
 import 'package:flutter/material.dart';
+// import 'dart:convert'; // Removido pois não é mais necessário
 
 class PaginaConfiguracao extends StatefulWidget {
   const PaginaConfiguracao({super.key});
@@ -15,6 +17,8 @@ class PaginaConfiguracao extends StatefulWidget {
 class _PaginaConfiguracaoState extends State<PaginaConfiguracao> {
   final UsuarioService _usuarioService = UsuarioService();
   bool _excluindo = false;
+
+  // Método _buildFotoPerfil removido
 
   void _sairDaConta(BuildContext context) {
     SessaoUsuario.encerrar();
@@ -143,17 +147,14 @@ class _PaginaConfiguracaoState extends State<PaginaConfiguracao> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
+                    // CircleAvatar atualizado com função compartilhada
                     CircleAvatar(
                       radius: 36,
                       backgroundColor: primary.withOpacity(0.2),
-                      backgroundImage:
-                          (usuario?.fotoPerfil != null &&
-                              usuario!.fotoPerfil!.isNotEmpty)
-                          ? NetworkImage(usuario.fotoPerfil!)
-                          : null,
-                      child:
-                          (usuario?.fotoPerfil == null ||
-                              usuario!.fotoPerfil!.isEmpty)
+                      backgroundImage: construirImagemPerfil(
+                        usuario?.fotoPerfil,
+                      ),
+                      child: construirImagemPerfil(usuario?.fotoPerfil) == null
                           ? Icon(Icons.person, size: 40, color: primary)
                           : null,
                     ),
