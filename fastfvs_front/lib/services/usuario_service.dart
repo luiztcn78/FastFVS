@@ -18,16 +18,20 @@ class UsuarioService {
   Future<void> excluirConta(int id) async {
     final response = await http.delete(Uri.parse('$_baseUrl/$id'));
 
-    if (response.statusCode != 204 && response.statusCode != 200) {
-      String mensagem =
-          'Erro ao excluir conta (Status: ${response.statusCode}).';
-      try {
-        final corpoErro = response.body.isNotEmpty
-            ? Uri.decodeFull(response.body)
-            : mensagem;
-        mensagem = corpoErro;
-      } catch (_) {}
-      throw Exception(mensagem);
+    if (response.statusCode == 204 || response.statusCode == 200) {
+      return;
     }
+
+    if (response.statusCode == 404) {
+      throw Exception('Conta não encontrada. Ela pode já ter sido excluída.');
+    }
+
+    String mensagem = 'Erro ao excluir conta (Status: ${response.statusCode}).';
+    try {
+      if (response.body.isNotEmpty) {
+        mensagem = response.body;
+      }
+    } catch (_) {}
+    throw Exception(mensagem);
   }
 }
