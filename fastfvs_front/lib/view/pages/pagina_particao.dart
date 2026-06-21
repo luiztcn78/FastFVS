@@ -1,12 +1,18 @@
 import 'package:fastfvs_front/models/dados_particao.dart';
+import 'package:fastfvs_front/services/subsecao_service.dart';
 import 'package:fastfvs_front/view/pages/sessao_fvs.dart';
 import 'package:fastfvs_front/view/widgets/botao_particao_baixo.dart';
 import 'package:fastfvs_front/view/widgets/container_particao.dart';
 import 'package:fastfvs_front/view/widgets/lista_containers_parti%C3%A7%C3%B5es.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PaginaParticao extends StatefulWidget {
-  const PaginaParticao({super.key});
+  final DadosParticao dadosParticao;
+  final Function(DadosParticao)? onTapParticao;
+
+
+  const PaginaParticao({super.key, required this.dadosParticao, this.onTapParticao});
 
   @override
   State<PaginaParticao> createState() => PaginaParticaoState();
@@ -15,19 +21,37 @@ class PaginaParticao extends StatefulWidget {
 class PaginaParticaoState extends State<PaginaParticao> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
 
-  // pegar os dados do back
-  final List<DadosParticao> subParticoes = [
-    DadosParticao(nome: 'Pavimento A'),
-    DadosParticao(nome: 'Pavimento B', mostrarVermelho: false),
-    DadosParticao(nome: 'Pavimento C', mostrarCinza: false),
-  ];
+  final SubsecaoService subsecaoService = SubsecaoService();
+  List<DadosParticao> dadosParticoesSubsecao = [];
+  bool carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarDados();
+  }
+
+  Future<void> _carregarDados() async {
+    final subsecoes = await subsecaoService.listarFilhas(widget.dadosParticao.id);
+    final dadosSubsecoes = await Future.wait(
+      subsecoes.map((subsecao) async {
+        final conformidade = await subsecaoService.getConformidade(subsecao.id);
+        return subsecaoService.statusPresentesNasubsecao(subsecao.id, subsecao.nome, conformidade);
+      })
+    );
+    setState(() {
+      carregando = false;
+      dadosParticoesSubsecao = dadosSubsecoes;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ContainerParticao(
-          nome: 'Bloco A',
+          dadosParticao: widget.dadosParticao,
           largura: MediaQuery.of(context).size.width * 0.9,
           serBotao: false,
         ),
@@ -45,8 +69,28 @@ class PaginaParticaoState extends State<PaginaParticao> {
               switch (settings.name) {
                 case '/Subsessao':
                   return PageRouteBuilder(
-                    pageBuilder: (context, _, __) => ListaContainersParticao(particoes: subParticoes),
-                    transitionDuration: Duration.zero,
+                    pageBuilder: (context, _, __) => carregando
+                      ? SingleChildScrollView(
+                          child: Wrap(
+                            children: List.generate(6, (_) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 15, left: 10, bottom: 15, right: 10),
+                                child: Container(
+                                  width: 160,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            )),
+                          ),
+                        )
+                      : ListaContainersParticao(particoes: dadosParticoesSubsecao, onTapParticao: widget.onTapParticao,),
+                        transitionDuration: Duration.zero,
                   );
                 default:
                   return PageRouteBuilder(

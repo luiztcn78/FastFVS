@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class InformacaoObra extends StatelessWidget {
-  const InformacaoObra({super.key});
+  final double percetualObra;
+  final String nomeObra;
+  final int fvsConforme;
+  final int fvsNaoConforme;
+
+  const InformacaoObra({super.key, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
+
+  double get percetualObraDecimal => percetualObra / 100;
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +27,7 @@ class InformacaoObra extends StatelessWidget {
               circularStrokeCap: CircularStrokeCap.round,
               radius: 55.0,
               lineWidth: 10.0,
-              percent: 0.31,        // 0.0 até 1.0 (75%)
+              percent: percetualObraDecimal,        // 0.0 até 1.0 (75%)
               center: Container(
                 width: 70,
                 height: 70,
@@ -29,7 +36,7 @@ class InformacaoObra extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Theme.of(context).colorScheme.primary
                 ),
-                child: Text('31%', 
+                child: Text('${percetualObra.toStringAsFixed(0)}%', 
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontSize: 14,
                   color: Theme.of(context).colorScheme.onPrimary
@@ -49,7 +56,9 @@ class InformacaoObra extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Residencial Flores", 
+                    Text(nomeObra, 
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 22,
                       color: Theme.of(context).colorScheme.onSecondary
@@ -63,7 +72,7 @@ class InformacaoObra extends StatelessWidget {
                       child: Icon(
                         Icons.edit_square, // Ícone que remete ao da imagem
                         color: Theme.of(context).colorScheme.primary,
-                        size: 28,
+                        size: 24,
                       ),
                     ),
                   ],
@@ -85,7 +94,7 @@ class InformacaoObra extends StatelessWidget {
                 child: LinearPercentIndicator(
                   width: MediaQuery.of(context).size.width * 0.6, 
                   lineHeight: 14.0,
-                  percent: 0.31,
+                  percent: percetualObraDecimal,
                   progressColor: Colors.green,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   barRadius: Radius.circular(8),
@@ -111,7 +120,7 @@ class InformacaoObra extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 1.0, top: 5),
-                    child: Text("21" + " Conformes",
+                    child: Text("$fvsConforme Conformes",
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSecondary
@@ -133,7 +142,7 @@ class InformacaoObra extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 1.0, top: 5),
-                    child: Text("87" + " Não conformes",
+                    child: Text("$fvsNaoConforme Não conformes",
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSecondary

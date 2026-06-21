@@ -1,6 +1,7 @@
 class DadosParticao {
   final int id; 
   final String nome;
+  final double percentualConformidade;
   final bool mostrarVerde;
   final bool mostrarAmarelo;
   final bool mostrarVermelho;
@@ -8,7 +9,8 @@ class DadosParticao {
  
   const DadosParticao({
     required this.nome,
-    this.id = 0, //pegar do back
+    this.percentualConformidade = 0.0,
+    this.id = 0,
     this.mostrarVerde = true,
     this.mostrarAmarelo = true,
     this.mostrarVermelho = true,
@@ -16,14 +18,15 @@ class DadosParticao {
   });
  
   // mudar aqui pra ver direitinho dps
-  factory DadosParticao.fromJson(Map<String, dynamic> json) {
+  factory DadosParticao.fromJson(Map<String, dynamic> json, int particaoId, String particaoNome, double percentualConformidade) {
     return DadosParticao(
-      id: json['id'],
-      nome: json['nome'],
-      mostrarVerde: json['mostrarVerde'] ?? true,
-      mostrarAmarelo: json['mostrarAmarelo'] ?? true,
-      mostrarVermelho: json['mostrarVermelho'] ?? true,
-      mostrarCinza: json['mostrarCinza'] ?? true,
+      id: particaoId,
+      nome: particaoNome,
+      percentualConformidade: percentualConformidade,
+      mostrarVerde: json['CONFORME'] ?? true,
+      mostrarAmarelo: json['EM_ANALISE'] ?? true,
+      mostrarVermelho: json['NAO_CONFORME'] ?? true,
+      mostrarCinza: json['NAO_INICIADA'] ?? true,
     );
   }
 }

@@ -7,7 +7,7 @@ import 'package:fastfvs_front/models/usuario.dart';
 class AuthService {
   String get _baseUrl {
     if (kIsWeb) {
-      return 'http://localhost:8080/api/auth';
+      return 'http://192.168.18.191:8080/api/auth';
     } else if (Platform.isAndroid) {
       return 'http://10.0.2.2:8080/api/auth';
     } else if (Platform.isIOS) {

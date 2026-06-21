@@ -1,3 +1,4 @@
+import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -5,23 +6,19 @@ class ContainerParticao extends StatelessWidget {
   final double largura;
   final double altura;
   final bool serBotao;
-  final String nome;
-  final bool mostrarVerde;
-  final bool mostrarAmarelo;
-  final bool mostrarVermelho;
-  final bool mostrarCinza;
+  final DadosParticao dadosParticao;
+  final Function(DadosParticao)? onTapParticao;
 
   const ContainerParticao({
-    required this.nome,
+    required this.dadosParticao,
     this.serBotao = true,
     this.largura = 160,
     this.altura = 100,
-    this.mostrarVerde = true,
-    this.mostrarAmarelo = true,
-    this.mostrarVermelho = true,
-    this.mostrarCinza = true,
+    this.onTapParticao,
     super.key,
   });
+
+  double get percentualConformidade => dadosParticao.percentualConformidade / 100;
 
   Widget _bolinha(Color cor) {
     return Padding(
@@ -42,7 +39,9 @@ class ContainerParticao extends StatelessWidget {
   Widget build(BuildContext context) {
     verificarBotao() {
       if (serBotao) {
-        return () => Navigator.of(context, rootNavigator: false).pushNamed('/particao');
+        return onTapParticao != null
+          ? () => onTapParticao!(dadosParticao)
+          : () => Navigator.of(context, rootNavigator: false).pushNamed('/particao', arguments: dadosParticao);
       } else {
         return null;
       }
@@ -70,7 +69,7 @@ class ContainerParticao extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 10, left: 20, right: 7),
                 child: Text(
-                  nome,
+                  dadosParticao.nome,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontSize: 22,
@@ -82,10 +81,10 @@ class ContainerParticao extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    if (mostrarVerde)    _bolinha(Colors.green),
-                    if (mostrarAmarelo)  _bolinha(Colors.yellow),
-                    if (mostrarVermelho) _bolinha(Colors.red),
-                    if (mostrarCinza)    _bolinha(Colors.grey),
+                    if (dadosParticao.mostrarVerde)    _bolinha(Colors.green),
+                    if (dadosParticao.mostrarAmarelo)  _bolinha(Colors.yellow),
+                    if (dadosParticao.mostrarVermelho) _bolinha(Colors.red),
+                    if (dadosParticao.mostrarCinza)    _bolinha(Colors.grey),
                   ],
                 ),
               ),
@@ -94,13 +93,13 @@ class ContainerParticao extends StatelessWidget {
                 child: LinearPercentIndicator(
                   width: larguraBarra,
                   lineHeight: 14.0,
-                  percent: 0.31,
+                  percent: percentualConformidade,
                   progressColor: Colors.green,
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   barRadius: const Radius.circular(8),
                   animation: true,
                   animationDuration: 800,
-                  trailing: const Text("100%"),
+                  trailing: Text("${dadosParticao.percentualConformidade.toStringAsFixed(0)}%"),
                 ),
               ),
             ],

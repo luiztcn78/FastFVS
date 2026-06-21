@@ -1,26 +1,30 @@
+import 'package:fastfvs_front/models/obra.dart';
 import 'package:fastfvs_front/view/widgets/botao_obra.dart';
 import 'package:flutter/material.dart';
 
 class BarraPesquisar extends StatefulWidget{
-  const BarraPesquisar({super.key});
+  final List<Obra> listaObras;
+
+  const BarraPesquisar({required this.listaObras, super.key});
 
   @override
   State<BarraPesquisar> createState() => BarraPesquisarState();
 }
 
 class BarraPesquisarState extends State<BarraPesquisar> {
-  List<String> lista_teste = ["Residencial Flores", 'Upe', 'Hospital se-cure', "Roblox"];
-  List<String> lista_teste_filtrada = [];
+  List<Obra> listaObras = [];
+  List<Obra> listaObrasFiltrada = [];
 
   @override
   void initState() {
     super.initState();
-    lista_teste_filtrada = lista_teste;
+    listaObras = widget.listaObras;
+    listaObrasFiltrada = listaObras;
   }
 
   void filtrar(String texto) {
     setState(() {
-      lista_teste_filtrada = lista_teste.where((item) => item.toLowerCase().contains(texto.toLowerCase())).toList();
+      listaObrasFiltrada = listaObras.where((item) => item.nome.toLowerCase().contains(texto.toLowerCase())).toList();
     });
   }
   
@@ -63,9 +67,9 @@ class BarraPesquisarState extends State<BarraPesquisar> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: lista_teste_filtrada.length,
+            itemCount: listaObrasFiltrada.length,
             itemBuilder: (context, index) {
-              return botao_obra(nome: lista_teste_filtrada[index]);
+              return botao_obra(obra: listaObrasFiltrada[index]);
             },
           ),
         ),

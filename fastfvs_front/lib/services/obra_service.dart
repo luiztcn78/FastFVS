@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 class ObraService {
 
-  final String urlBase = "http://172.16.32.80:8080/api/obras";
+  final String urlBase = "http://192.168.18.191:8080/api/obras";
 
   Future<void> criarObra(String nome, String? linkProjeto, int usuarioId) async {
     final response = await http.post(
@@ -50,7 +50,7 @@ class ObraService {
   }
 
   Future<List<Obra>> listarObraPorUsuario(int usuarioId) async {
-    final response = await http.get(Uri.parse('$urlBase/usuario/usuaroId'));
+    final response = await http.get(Uri.parse('$urlBase/usuario/$usuarioId'));
 
     if (response.statusCode == 200) {
       List jsonResponse = jsonDecode(response.body);

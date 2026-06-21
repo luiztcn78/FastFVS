@@ -1,10 +1,12 @@
+import 'package:fastfvs_front/models/obra.dart';
 import 'package:fastfvs_front/view/pages/pagina_obra.dart';
 import 'package:flutter/material.dart';
 
 class botao_obra extends StatelessWidget{
-  final String nome;
+  final Obra obra;
 
-  const botao_obra({required this.nome, super.key});
+
+  const botao_obra({required this.obra, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +25,11 @@ class botao_obra extends StatelessWidget{
 
           onPressed:() => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PaginaObra()),
+            MaterialPageRoute(builder: (context) => PaginaObra(obra: obra,)),
             ), 
 
           child: Text(
-                  nome, 
+                  obra.nome, 
                   textAlign: TextAlign.center, 
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,

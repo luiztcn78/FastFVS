@@ -161,7 +161,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     SizedBox(
                       width: 120,
                       child: Text(
-                        "Concluída",
+                        "Conforme",
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 20,
                               decoration: TextDecoration.underline,
@@ -173,11 +173,11 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
                         onPressed: () => setState(() {
-                          clicado = "concluido";
+                          clicado = "conforme";
                           widget.statusSelecionado(Colors.green);
                           Navigator.pop(context);
                         }),
-                        icon: marcar("concluido"),
+                        icon: marcar("conforme"),
                       ),
                     ),
                   ],
@@ -198,7 +198,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     SizedBox(
                       width: 120,
                       child: Text(
-                        "Em processo",
+                        "Em análise",
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 20,
                               decoration: TextDecoration.underline,
@@ -210,11 +210,11 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
                         onPressed: () => setState(() {
-                          clicado = "em processo";
+                          clicado = "em analise";
                           widget.statusSelecionado(Colors.yellow);
                           Navigator.pop(context);
                         }),
-                        icon: marcar("em processo"),
+                        icon: marcar("em analise"),
                       ),
                     ),
                   ],
@@ -235,7 +235,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     SizedBox(
                       width: 120,
                       child: Text(
-                        "Não iniciada",
+                        "Não conforme",
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 20,
                               decoration: TextDecoration.underline,
@@ -247,11 +247,11 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
                         onPressed: () => setState(() {
-                          clicado = "nao iniciada";
+                          clicado = "nao conforme";
                           widget.statusSelecionado(Colors.red);
                           Navigator.pop(context);
                         }),
-                        icon: marcar("nao iniciada"),
+                        icon: marcar("nao conforme"),
                       ),
                     ),
                   ],

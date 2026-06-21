@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:fastfvs_front/models/compartilhamento_dto.dart';
+import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:fastfvs_front/models/subsecao.dart';
 import 'package:http/http.dart' as http;
 
 class SubsecaoService {
-    final String urlBase = "http://172.16.32.80:8080/api/subsecao";
+    final String urlBase = "http://192.168.18.191:8080/api/subsecao";
 
     Future<void> criarSubsecao(String nome, int obraId, int usuarioId, {int? paiId, List<String>? fvsEscolhidas}) async {
     final response = await http.post(
@@ -25,12 +26,13 @@ class SubsecaoService {
     }
   }
 
-  Future<Map<String, bool>> statusPresentesNasubsecao(int subsecaoId) async {
+  Future<DadosParticao> statusPresentesNasubsecao(int subsecaoId, String nome, double percentualConformidade) async {
     final response = await http.get(Uri.parse('$urlBase/$subsecaoId/status-presentes'));
 
     if(response.statusCode == 200) {
       Map<String, bool> resumo = Map<String, bool>.from(jsonDecode(response.body));
-      return resumo;
+
+      return DadosParticao.fromJson(resumo, subsecaoId, nome, percentualConformidade);
     }
     else{
       throw Exception('Erro ao retornar resumo de status');
@@ -39,11 +41,8 @@ class SubsecaoService {
 
   Future<void> criarEstruturaAutomatica(
     int obraId,
-    int qtdBlocos,
-    int pavPorBloco,
-    int aptPorPav,
-    String padraoNumeracao,
     int usuarioId,
+    List<Map<String, dynamic>> niveis,
     List<String> fvsEscolhidas,
   ) async {
     final response = await http.post(
@@ -51,11 +50,8 @@ class SubsecaoService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'obraId': obraId,
-        'qtdBlocos': qtdBlocos,
-        'pavPorBloco': pavPorBloco,
-        'aptPorPav': aptPorPav,
-        'padraoNumeracao': padraoNumeracao,
         'usuarioId': usuarioId,
+        'niveis': niveis,
         'fvsEscolhidas': fvsEscolhidas,
       }),
     );
@@ -149,6 +145,19 @@ class SubsecaoService {
 
     if (response.statusCode != 204) {
       throw Exception('Erro ao retornar deletar subseção');
+    }
+  }
+
+  Future<double> getConformidade(int subsecaoId) async {
+    final response = await http.get(Uri.parse('$urlBase/$subsecaoId/conformidade'));
+
+    if(response.statusCode == 200){
+      final json = jsonDecode(response.body);
+      double percentual = json['percentual'];
+      return percentual;
+    }
+    else{
+      throw Exception('Erro ao informar a conformidade da subseção');
     }
   }
 }

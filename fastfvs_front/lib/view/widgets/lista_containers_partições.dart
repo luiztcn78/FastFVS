@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class ListaContainersParticao extends StatelessWidget {
   final List<DadosParticao> particoes;
+  final Function(DadosParticao)? onTapParticao;
 
-  const ListaContainersParticao({required this.particoes, super.key});
+  const ListaContainersParticao({required this.particoes, this.onTapParticao, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +16,8 @@ class ListaContainersParticao extends StatelessWidget {
         runSpacing: 0,
         children: particoes.map((particao) =>
           ContainerParticao(
-            nome: particao.nome,
-            mostrarVerde: particao.mostrarVerde,
-            mostrarAmarelo: particao.mostrarAmarelo,
-            mostrarVermelho: particao.mostrarVermelho,
-            mostrarCinza: particao.mostrarCinza,
+            dadosParticao: particao,
+            onTapParticao: onTapParticao,
           ),
         ).toList(),
       ),

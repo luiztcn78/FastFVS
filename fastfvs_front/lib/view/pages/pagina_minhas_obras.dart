@@ -1,3 +1,7 @@
+import 'package:fastfvs_front/models/obra.dart';
+import 'package:fastfvs_front/models/usuario.dart';
+import 'package:fastfvs_front/services/obra_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_criar_obra.dart';
 import 'package:fastfvs_front/view/widgets/barra_pesquisar.dart';
@@ -11,10 +15,32 @@ class PaginaMinhasObras extends StatefulWidget {
 }
 
 class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
+  List<Obra> listaObras = [];
+  bool carregando = true;
+  final obraService = ObraService();
+
+
+  @override
+  void initState() {
+    super.initState();
+    carregarObras();
+  }
+
+  Future<void> carregarObras() async {
+    final int usuarioId = 4;
+    final obras = await obraService.listarObraPorUsuario(usuarioId);
+    setState(() {
+      listaObras = obras;
+      carregando = false;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final largura = MediaQuery.of(context).size.width;
     final cor = Theme.of(context).colorScheme;
+
 
     return PaginaBase(
       paginaAberta: 0,
@@ -36,7 +62,11 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                   ),
                 ),
               ),
-              Expanded(child: BarraPesquisar()),
+              Expanded(
+                child: carregando
+                  ? const Center(child: CircularProgressIndicator())
+                  : BarraPesquisar(listaObras: listaObras),
+              ),
             ],
           ),
           Positioned(
@@ -49,7 +79,7 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
                   MaterialPageRoute(builder: (_) => const PaginaCriarObra()),
                 );
                 if (criou == true) {
-                  setState(() {});
+                  carregarObras();
                 }
               },
               icon: const Icon(Icons.add, color: Colors.white),

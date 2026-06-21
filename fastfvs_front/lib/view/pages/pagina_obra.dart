@@ -1,4 +1,8 @@
 import 'package:fastfvs_front/models/dados_particao.dart';
+import 'package:fastfvs_front/models/obra.dart';
+import 'package:fastfvs_front/models/subsecao.dart';
+import 'package:fastfvs_front/services/obra_service.dart';
+import 'package:fastfvs_front/services/subsecao_service.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
 import 'package:fastfvs_front/view/pages/pagina_particao.dart';
 import 'package:fastfvs_front/view/pages/pagina_qr_code_obra.dart';
@@ -9,9 +13,13 @@ import 'package:fastfvs_front/view/widgets/opcoes_menu_suspenso.dart';
 import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
 import 'package:fastfvs_front/view/widgets/popup_fvs_padroes.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 
 class PaginaObra extends StatefulWidget {
-  const PaginaObra({super.key});
+  final Obra obra;
+
+
+  const PaginaObra({required this.obra, super.key});
 
   @override
   State<PaginaObra> createState() => PaginaObraState();
@@ -21,24 +29,46 @@ class PaginaObraState extends State<PaginaObra> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
   final controladorNome = TextEditingController();
 
-  // substituir pelos dados do back
-  final List<DadosParticao> particoes = [
-    DadosParticao(nome: 'Bloco A'),
-    DadosParticao(nome: 'Bloco B', mostrarVermelho: false),
-    DadosParticao(nome: 'Bloco C', mostrarCinza: false, mostrarAmarelo: false),
-  ];
+  final ObraService obraService = ObraService();
+  double percentualObra = 0.0;
+  int fvsConforme = 0;
+  int fvsNaoConforme = 0;
+  bool carregando = true;
 
-  final ValueNotifier<List<OpcoesMenuSuspenso>> opcoes = ValueNotifier([]);
-
-  String fvsCriada = '';
+  final SubsecaoService subsecaoService = SubsecaoService();
+  List<DadosParticao> dadosSubsecoesRaizes = [];
 
   @override
   void initState() {
     super.initState();
+    _carregarDados();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _definirOpcoesInicio();
     });
   }
+
+  Future<void> _carregarDados() async {
+    final percentual = await obraService.getConformidadeObra(widget.obra.id);
+    final resumo = await obraService.contarStatusObra(widget.obra.id);
+    final subsecoes = await subsecaoService.listarRaizesPorObra(widget.obra.id);
+    final dadosSubsecoes = await Future.wait(
+      subsecoes.map((subsecao) async {
+        final conformidade = await subsecaoService.getConformidade(subsecao.id);
+        return subsecaoService.statusPresentesNasubsecao(subsecao.id, subsecao.nome, conformidade);
+      })
+    );
+    setState(() {
+      percentualObra = percentual;
+      fvsConforme = resumo['CONFORME'] ?? 0;
+      fvsNaoConforme = resumo['NAO_CONFORME'] ?? 0;
+      carregando = false;
+      dadosSubsecoesRaizes = dadosSubsecoes;
+    });
+  }
+
+  final ValueNotifier<List<OpcoesMenuSuspenso>> opcoes = ValueNotifier([]);
+
+  String fvsCriada = '';
 
   void _definirOpcoesInicio() {
     opcoes.value = [
@@ -191,25 +221,70 @@ class PaginaObraState extends State<PaginaObra> {
         ),
         body: Column(
           children: [
-            InformacaoObra(),
+            carregando
+              ? Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border(
+                      bottom: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary)
+                    ),
+                  ),
+                child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: double.infinity, 
+                  height: 120, 
+                  color: Colors.white
+                ),
+                )
+              )
+              : InformacaoObra(nomeObra: widget.obra.nome, percetualObra: percentualObra, fvsConforme: fvsConforme, fvsNaoConforme: fvsNaoConforme,),
             Expanded(
               child: Navigator(
                 key: controladorNavegacao,
                 onGenerateRoute: (settings) {
                   switch (settings.name) {
                     case '/particao':
+                    final dadosParticao = settings.arguments as DadosParticao;
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _definirOpcoesParticao();
                       });
                       return MaterialPageRoute(
-                        builder: (context) => PaginaParticao(),
+                        builder: (context) => PaginaParticao(dadosParticao: dadosParticao,
+                        onTapParticao: (dadosFilha) {
+                          controladorNavegacao.currentState?.pushNamed(
+                            '/particao',
+                            arguments: dadosFilha,
+                          );
+                        },),
                       );
                     default:
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _definirOpcoesInicio();
                       });
                       return MaterialPageRoute(
-                        builder: (context) => ListaContainersParticao(particoes: particoes),
+                        builder: (context) => carregando
+                          ? SingleChildScrollView(
+                              child: Wrap(
+                                children: List.generate(8, (_) => Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 15, left: 10, bottom: 15, right: 10),
+                                    child: Container(
+                                      width: 160,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                              ),
+                            )
+                          : ListaContainersParticao(particoes: dadosSubsecoesRaizes),
                       );
                   }
                 },
