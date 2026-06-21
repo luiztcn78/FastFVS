@@ -27,24 +27,30 @@ class FvsService {
 
   }
 
-  Future<void> criarFVS(String titulo, int subsecaoId, int usuarioId) async {
-
+  Future<void> criarFVS({
+    required String titulo,
+    required int usuarioId,
+    int? subsecaoId,
+    int? obraId,
+    bool aplicarEmTodas = false,
+  }) async {
     final response = await http.post(
       Uri.parse('$urlBase?usuarioId=$usuarioId'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'titulo': titulo,
         'subsecaoId': subsecaoId,
+        'obraId': obraId,
+        'aplicarEmTodas': aplicarEmTodas,
       }),
     );
 
     if (response.statusCode != 201) {
       throw Exception('Erro ao criar FVS');
     }
-  }
-
+}
   Future<void> atualizarStatus(String idFvs, String status, int usuarioId) async {
-    final response = await http.patch(Uri.parse('$urlBase/$idFvs/status/'), 
+    final response = await http.patch(Uri.parse('$urlBase/$idFvs/status'), 
     headers: {'Content-Type': 'application/json'},
     body: jsonEncode({
       "status": status,
@@ -81,4 +87,12 @@ class FvsService {
     }
   }
 
+  Future<void> deletarPorTituloNaObra(int obraId, String titulo) async {
+    final tituloCodificado = Uri.encodeComponent(titulo);
+    final response = await http.delete(Uri.parse('$urlBase/obra/$obraId/titulo/$tituloCodificado'));
+
+    if (response.statusCode != 200) {
+      throw Exception('Erro ao excluir FVS de todas as subseções');
+    }
+  }
 }

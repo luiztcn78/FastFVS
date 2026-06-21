@@ -9,10 +9,17 @@ import 'package:shimmer/shimmer.dart';
 
 class PaginaParticao extends StatefulWidget {
   final DadosParticao dadosParticao;
+  final int obraId;
   final Function(DadosParticao)? onTapParticao;
+  final GlobalKey<SessaoFvsState>? chaveSessaoFvs;
 
-
-  const PaginaParticao({super.key, required this.dadosParticao, this.onTapParticao});
+  const PaginaParticao({
+    super.key,
+    required this.dadosParticao,
+    required this.obraId,
+    this.onTapParticao,
+    this.chaveSessaoFvs,
+  });
 
   @override
   State<PaginaParticao> createState() => PaginaParticaoState();
@@ -94,7 +101,11 @@ class PaginaParticaoState extends State<PaginaParticao> {
                   );
                 default:
                   return PageRouteBuilder(
-                    pageBuilder: (context, _, __) => SessaoFvs(),
+                    pageBuilder: (context, _, __) => SessaoFvs(
+                      key: widget.chaveSessaoFvs,
+                      subsecaoId: widget.dadosParticao.id,
+                      obraId: widget.obraId,
+                    ),
                     transitionDuration: Duration.zero,
                   );
               }

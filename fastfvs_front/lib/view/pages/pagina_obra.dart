@@ -12,6 +12,9 @@ import 'package:fastfvs_front/view/widgets/lista_containers_parti%C3%A7%C3%B5es.
 import 'package:fastfvs_front/view/widgets/opcoes_menu_suspenso.dart';
 import 'package:fastfvs_front/view/widgets/popup_compartilhar.dart';
 import 'package:fastfvs_front/view/widgets/popup_fvs_padroes.dart';
+import 'package:fastfvs_front/services/fvs_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
+import 'package:fastfvs_front/view/pages/sessao_fvs.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -28,6 +31,9 @@ class PaginaObra extends StatefulWidget {
 class PaginaObraState extends State<PaginaObra> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
   final controladorNome = TextEditingController();
+  final FvsService fvsService = FvsService();
+  final chaveSessaoFvs = GlobalKey<SessaoFvsState>();
+  DadosParticao? subsecaoAtual;
 
   final ObraService obraService = ObraService();
   double percentualObra = 0.0;
@@ -84,121 +90,148 @@ class PaginaObraState extends State<PaginaObra> {
     ];
   }
 
-  void _definirOpcoesParticao() {
-    opcoes.value = [
-      OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) {
-            // Variável de estado local do dialog
-            bool adicionarEmTodasSubsecoes = false; 
+  void _definirOpcoesParticao(DadosParticao dadosParticao) {
+  subsecaoAtual = dadosParticao;
 
-            return StatefulBuilder(
-              builder: (context, setStateDialog) {
-                return AlertDialog(
-                  insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  title: Text('Criar FVS', style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 22,
-                    color: Theme.of(context).colorScheme.onSecondary,
-                  )),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                  ),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: controladorNome,
-                        decoration: InputDecoration(
-                          labelText: 'Nome da FVS',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.zero,
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                          ),
+  opcoes.value = [
+    OpcoesMenuSuspenso(nome: 'Criar fvs', onTap: () {
+      showDialog(
+        context: context,
+        builder: (context) {
+          bool adicionarEmTodasSubsecoes = false;
+          bool salvando = false;
+
+          return StatefulBuilder(
+            builder: (context, setStateDialog) {
+              return AlertDialog(
+                insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+                title: Text('Criar FVS', style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                  fontSize: 22,
+                  color: Theme.of(context).colorScheme.onSecondary,
+                )),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: controladorNome,
+                      decoration: InputDecoration(
+                        labelText: 'Nome da FVS',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      // Novo Checkbox
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            value: adicionarEmTodasSubsecoes,
-                            activeColor: Theme.of(context).colorScheme.primary,
-                            onChanged: (v) {
-                              setStateDialog(() {
-                                adicionarEmTodasSubsecoes = v ?? false;
-                              });
-                            },
-                          ),
-                          Text(
-                            "Adicionar em todas\nas Subseções",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSecondary,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  actionsAlignment: MainAxisAlignment.spaceBetween,
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        // Você pode acessar a variável adicionarEmTodasSubsecoes aqui,, integração
-                        fvsCriada = controladorNome.text;
-                        Navigator.pop(context, true);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xff84E08F),
-                        foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                        fixedSize: const Size(120, 40),
-                        side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                      ),
-                      child: const Text('Confirmar'),
                     ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: const Size(110, 40),
-                        backgroundColor: const Color(0xffFF6D6D),
-                        foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                        side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
-                      ),
-                      child: const Text('Cancelar'),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          value: adicionarEmTodasSubsecoes,
+                          activeColor: Theme.of(context).colorScheme.primary,
+                          onChanged: (v) {
+                            setStateDialog(() => adicionarEmTodasSubsecoes = v ?? false);
+                          },
+                        ),
+                        Text(
+                          "Adicionar em todas\nas Subseções",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSecondary,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                );
-              }
-            );
-          }
-        );
-      }),
-      OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          barrierColor: Colors.transparent,
-          builder: (_) => PopupFvsPadroes(onFechar: () => Navigator.pop(context)),
-        );
-      }),
-      OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
-      }),
-    ];
-  }
+                ),
+                actionsAlignment: MainAxisAlignment.spaceBetween,
+                actions: [
+                  ElevatedButton(
+                    onPressed: salvando ? null : () async {
+                      final titulo = controladorNome.text.trim();
+                      if (titulo.isEmpty) return;
+
+                      setStateDialog(() => salvando = true);
+
+                      try {
+                        final usuarioId = SessaoUsuario.usuario!.id;
+                        await fvsService.criarFVS(
+                          titulo: titulo,
+                          usuarioId: usuarioId,
+                          subsecaoId: adicionarEmTodasSubsecoes ? null : subsecaoAtual!.id,
+                          obraId: adicionarEmTodasSubsecoes ? widget.obra.id : null,
+                          aplicarEmTodas: adicionarEmTodasSubsecoes,
+                        );
+
+                        controladorNome.clear();
+                        if (context.mounted) Navigator.pop(context);
+                        chaveSessaoFvs.currentState?.carregarFvs();
+                      } catch (e) {
+                        setStateDialog(() => salvando = false);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff84E08F),
+                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      fixedSize: const Size(120, 40),
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    ),
+                    child: salvando
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Confirmar'),
+                  ),
+                  ElevatedButton(
+                    onPressed: salvando ? null : () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      fixedSize: const Size(110, 40),
+                      backgroundColor: const Color(0xffFF6D6D),
+                      foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                    ),
+                    child: const Text('Cancelar'),
+                  ),
+                ],
+              );
+            }
+          );
+        }
+      );
+    }),
+    OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierColor: Colors.transparent,
+        builder: (_) => PopupFvsPadroes(
+          subsecaoId: subsecaoAtual!.id,
+          obraId: widget.obra.id,
+          onFechar: () => Navigator.pop(context),
+          onSucesso: () => chaveSessaoFvs.currentState?.carregarFvs(),
+        ),
+      );
+    }),
+    OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+    }),
+  ];
+}
 
   @override
   Widget build(BuildContext context) {
@@ -246,19 +279,23 @@ class PaginaObraState extends State<PaginaObra> {
                 onGenerateRoute: (settings) {
                   switch (settings.name) {
                     case '/particao':
-                    final dadosParticao = settings.arguments as DadosParticao;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _definirOpcoesParticao();
-                      });
-                      return MaterialPageRoute(
-                        builder: (context) => PaginaParticao(dadosParticao: dadosParticao,
-                        onTapParticao: (dadosFilha) {
-                          controladorNavegacao.currentState?.pushNamed(
-                            '/particao',
-                            arguments: dadosFilha,
-                          );
-                        },),
-                      );
+                      final dadosParticao = settings.arguments as DadosParticao;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _definirOpcoesParticao(dadosParticao);
+                        });
+                        return MaterialPageRoute(
+                          builder: (context) => PaginaParticao(
+                            dadosParticao: dadosParticao,
+                            obraId: widget.obra.id,
+                            chaveSessaoFvs: chaveSessaoFvs,
+                            onTapParticao: (dadosFilha) {
+                              controladorNavegacao.currentState?.pushNamed(
+                                '/particao',
+                                arguments: dadosFilha,
+                              );
+                            },
+                          ),
+                        );
                     default:
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _definirOpcoesInicio();

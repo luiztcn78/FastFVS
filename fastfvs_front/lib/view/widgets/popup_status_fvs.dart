@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:fastfvs_front/view/pages/pagina_historico_fvs.dart';
+import 'package:fastfvs_front/services/fvs_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 
 class PopUpStatusFvs extends StatefulWidget {
+  final String fvsId;
+  final int obraId;
   final String nomeFvs;
+  final DateTime dataUltimaEdicao;
+  final String? nomeUltimoEditor;
   final Function(Color) statusSelecionado;
+  final VoidCallback? onDeletado;
+  final VoidCallback? onAtualizado;
 
-  const PopUpStatusFvs({required this.statusSelecionado, required this.nomeFvs, super.key});
+  const PopUpStatusFvs({
+    required this.fvsId,
+    required this.obraId,
+    required this.statusSelecionado,
+    required this.nomeFvs,
+    required this.dataUltimaEdicao,
+    this.nomeUltimoEditor,
+    this.onDeletado,
+    this.onAtualizado,
+    super.key,
+  });
 
   @override
   State<PopUpStatusFvs> createState() => PopUpStatusFvsState();
@@ -13,6 +31,8 @@ class PopUpStatusFvs extends StatefulWidget {
 
 class PopUpStatusFvsState extends State<PopUpStatusFvs> {
   String clicado = "";
+  bool carregando = false;
+  final FvsService fvsService = FvsService();
 
   Icon marcar(String opcao) {
     if (clicado == opcao) {
@@ -22,11 +42,44 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
     }
   }
 
-  void _mostrarDialogoDeletar(BuildContext context) {
+  Future<void> _atualizarStatus(String novoStatus, String chaveClicado, Color cor) async {
+    setState(() {
+      carregando = true;
+      clicado = chaveClicado;
+    });
+
+    try {
+      final usuarioId = SessaoUsuario.usuario!.id;
+      await fvsService.atualizarStatus(widget.fvsId, novoStatus, usuarioId);
+      widget.statusSelecionado(cor);
+      widget.onAtualizado?.call();
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        setState(() => carregando = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+        );
+      }
+    }
+  }
+
+  String _doisDigitos(int n) => n.toString().padLeft(2, '0');
+
+  String _formatarData(DateTime data) {
+    return '${_doisDigitos(data.day)}/${_doisDigitos(data.month)}/${data.year}';
+  }
+
+  String _formatarHora(DateTime data) {
+    return '${_doisDigitos(data.hour)}:${_doisDigitos(data.minute)}';
+  }
+
+  void _mostrarDialogoDeletar(BuildContext contextoPopup) {
     showDialog(
-      context: context,
+      context: contextoPopup,
       builder: (context) {
         bool deletarEmTodasSubsecoes = false;
+        bool deletando = false;
 
         return StatefulBuilder(
           builder: (context, setStateDialog) {
@@ -53,7 +106,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       Checkbox(
                         value: deletarEmTodasSubsecoes,
                         activeColor: Theme.of(context).colorScheme.primary,
-                        onChanged: (v) {
+                        onChanged: deletando ? null : (v) {
                           setStateDialog(() {
                             deletarEmTodasSubsecoes = v ?? false;
                           });
@@ -74,10 +127,23 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
               actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
                 ElevatedButton(
-                  onPressed: () {
-                    // Lógica para deletar a FVS entra aqui (integração futura)
-                    // Você pode acessar a variável `deletarEmTodasSubsecoes`
-                    Navigator.pop(context, true);
+                  onPressed: deletando ? null : () async {
+                    setStateDialog(() => deletando = true);
+                    try {
+                      if (deletarEmTodasSubsecoes) {
+                        await fvsService.deletarPorTituloNaObra(widget.obraId, widget.nomeFvs);
+                      } else {
+                        await fvsService.deletarFvs(widget.fvsId);
+                      }
+                      Navigator.pop(context);
+                      widget.onDeletado?.call();
+                      if (contextoPopup.mounted) Navigator.pop(contextoPopup);
+                    } catch (e) {
+                      setStateDialog(() => deletando = false);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff84E08F),
@@ -85,10 +151,12 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     fixedSize: const Size(120, 40),
                     side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
                   ),
-                  child: const Text('Confirmar'),
+                  child: deletando
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Confirmar'),
                 ),
                 ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: deletando ? null : () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
                     fixedSize: const Size(110, 40),
                     backgroundColor: const Color(0xffFF6D6D),
@@ -137,9 +205,8 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                               ),
                         ),
                       ),
-                      // Ícone de lixeira adicionado aqui
                       IconButton(
-                        onPressed: () => _mostrarDialogoDeletar(context),
+                        onPressed: carregando ? null : () => _mostrarDialogoDeletar(context),
                         icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 28),
                       ),
                     ],
@@ -152,10 +219,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       child: Container(
                         width: 25,
                         height: 25,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.green,
-                        ),
+                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
                       ),
                     ),
                     SizedBox(
@@ -172,11 +236,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
-                        onPressed: () => setState(() {
-                          clicado = "conforme";
-                          widget.statusSelecionado(Colors.green);
-                          Navigator.pop(context);
-                        }),
+                        onPressed: carregando ? null : () => _atualizarStatus("CONFORME", "conforme", Colors.green),
                         icon: marcar("conforme"),
                       ),
                     ),
@@ -189,10 +249,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       child: Container(
                         width: 25,
                         height: 25,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.yellow,
-                        ),
+                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.yellow),
                       ),
                     ),
                     SizedBox(
@@ -209,11 +266,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
-                        onPressed: () => setState(() {
-                          clicado = "em analise";
-                          widget.statusSelecionado(Colors.yellow);
-                          Navigator.pop(context);
-                        }),
+                        onPressed: carregando ? null : () => _atualizarStatus("EM_ANALISE", "em analise", Colors.yellow),
                         icon: marcar("em analise"),
                       ),
                     ),
@@ -226,10 +279,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                       child: Container(
                         width: 25,
                         height: 25,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.red,
-                        ),
+                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
                       ),
                     ),
                     SizedBox(
@@ -246,11 +296,7 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                     Padding(
                       padding: const EdgeInsets.only(left: 30),
                       child: IconButton(
-                        onPressed: () => setState(() {
-                          clicado = "nao conforme";
-                          widget.statusSelecionado(Colors.red);
-                          Navigator.pop(context);
-                        }),
+                        onPressed: carregando ? null : () => _atualizarStatus("NAO_CONFORME", "nao conforme", Colors.red),
                         icon: marcar("nao conforme"),
                       ),
                     ),
@@ -269,17 +315,17 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PaginaHistoricoFVS(),
+                            builder: (context) => PaginaHistoricoFVS(
+                              fvsId: widget.fvsId,
+                              nomeFvs: widget.nomeFvs,
+                            ),
                           ),
                         );
                       },
                       child: const Center(
                         child: Text(
                           'Histórico de Alterações',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),
                     ),
@@ -294,27 +340,32 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Icon(Icons.account_box_rounded, size: 45),
-                Text(
-                  "Pessoa Pessoa",
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontSize: 20,
-                        overflow: TextOverflow.ellipsis,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      widget.nomeUltimoEditor ?? "Ainda não editada",
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            fontSize: 18,
+                            color: Theme.of(context).colorScheme.onSecondary,
+                          ),
+                    ),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
                       Text(
-                        "13/04/2024",
+                        _formatarData(widget.dataUltimaEdicao),
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 16,
                               color: Theme.of(context).colorScheme.onSecondary,
                             ),
                       ),
                       Text(
-                        "21:33",
+                        _formatarHora(widget.dataUltimaEdicao),
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontSize: 16,
                               color: Theme.of(context).colorScheme.onSecondary,

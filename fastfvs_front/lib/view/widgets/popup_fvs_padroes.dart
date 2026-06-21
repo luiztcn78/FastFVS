@@ -1,49 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:fastfvs_front/services/fvs_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 
 class PopupFvsPadroes extends StatefulWidget {
+  final int subsecaoId;
+  final int obraId;
   final VoidCallback onFechar;
+  final VoidCallback? onSucesso;
 
-  const PopupFvsPadroes({super.key, required this.onFechar});
+  const PopupFvsPadroes({
+    super.key,
+    required this.subsecaoId,
+    required this.obraId,
+    required this.onFechar,
+    this.onSucesso,
+  });
 
   @override
   State<PopupFvsPadroes> createState() => _PopupFvsPadroesState();
 }
 
 class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
-  // Lista de FVS tirando as variáveis isoladas
-  final Map<String, bool> _fvsLista = {
-    "FVS - Hidráulica": false,
-    "FVS - Azulejo": false,
-    "FVS - Concretagem": false,
-    "FVS - Aviamento": false,
-    "FVS - Pintura": false,
-    "FVS - Instalação Elétrica": false,
-    "FVS - Piso": false,
-    "FVS - Fiação Elétrica": false,
-    "FVS - Encanamento": false,
-    "FVS - Cerâmica": false,
-    "FVS - Móveis": false,
-  };
+  final FvsService fvsService = FvsService();
 
+  Map<String, bool> _fvsLista = {};
+  bool _carregandoLista = true;
+  bool _salvando = false;
   bool _adicionarEmTodasSubsecoes = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarPadroes();
+  }
+
+  Future<void> _carregarPadroes() async {
+    try {
+      final nomes = await fvsService.listarFvsPadroes();
+      if (!mounted) return;
+      setState(() {
+        _fvsLista = {for (var nome in nomes) nome: false};
+        _carregandoLista = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _carregandoLista = false);
+    }
+  }
+
+  Future<void> _confirmar() async {
+    final selecionadas = _fvsLista.entries.where((e) => e.value).map((e) => e.key).toList();
+    if (selecionadas.isEmpty) {
+      widget.onFechar();
+      return;
+    }
+
+    setState(() => _salvando = true);
+
+    try {
+      final usuarioId = SessaoUsuario.usuario!.id;
+
+      for (final titulo in selecionadas) {
+        await fvsService.criarFVS(
+          titulo: titulo,
+          usuarioId: usuarioId,
+          subsecaoId: _adicionarEmTodasSubsecoes ? null : widget.subsecaoId,
+          obraId: _adicionarEmTodasSubsecoes ? widget.obraId : null,
+          aplicarEmTodas: _adicionarEmTodasSubsecoes,
+        );
+      }
+
+      widget.onSucesso?.call();
+      widget.onFechar();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _salvando = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final largura = MediaQuery.of(context).size.width;
-    
-    // Capturando o ColorScheme e verificando se está no Dark Mode
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = colorScheme.brightness == Brightness.dark;
-
-    // LÓGICA DAS CORES:
-    // Fundo: Branco no Light / Marrom (primary) no Dark
     final corFundo = isDark ? colorScheme.primary : Colors.white;
-    
-    // Textos/Bordas: Marrom no Light / Branco no Dark (Essa é exatamente a onSecondary)
     final corElementos = colorScheme.onSecondary;
-    
-    // O "V" de dentro do checkbox para não sumir
-    // (Branco no Light / Marrom no Dark)
     final corCheck = isDark ? colorScheme.primary : Colors.white;
 
     return Stack(
@@ -56,104 +100,73 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
           top: 60,
           left: largura * 0.05,
           right: largura * 0.05,
-          // Limitando a altura para que o Scroll funcione em telas menores
-          bottom: MediaQuery.of(context).size.height * 0.1, 
+          bottom: MediaQuery.of(context).size.height * 0.1,
           child: Material(
             elevation: 10,
             borderRadius: BorderRadius.circular(16),
             child: Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: corFundo, // <--- Aplicando cor correta ao fundo
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Definir FVS",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: corElementos, // <--- Aplicando cor ao título
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Lista com Scroll
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: _fvsLista.keys.map((String chave) {
-                          return _linhaFvs(
-                            corElementos, 
-                            corCheck, 
-                            chave,
-                            _fvsLista[chave]!,
-                            (v) => setState(() => _fvsLista[chave] = v!),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-                  
-                  // Checkbox "Adicionar em todas as Subseções"
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Checkbox(
-                        value: _adicionarEmTodasSubsecoes,
-                        onChanged: (v) => setState(() => _adicionarEmTodasSubsecoes = v!),
-                        activeColor: corElementos,
-                        checkColor: corCheck, // <--- Mantendo o V visível
-                      ),
-                      Text(
-                        "Adicionar em todas\nas Subseções",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: corElementos,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: widget.onFechar,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+              decoration: BoxDecoration(color: corFundo, borderRadius: BorderRadius.circular(16)),
+              child: _carregandoLista
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("Definir FVS",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: corElementos)),
+                        const SizedBox(height: 12),
+                        Flexible(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: _fvsLista.keys.map((String chave) {
+                                return _linhaFvs(corElementos, corCheck, chave, _fvsLista[chave]!,
+                                  (v) => setState(() => _fvsLista[chave] = v!));
+                              }).toList(),
+                            ),
                           ),
                         ),
-                        child: const Text(
-                          "Confirmar",
-                          style: TextStyle(color: Colors.white),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Checkbox(
+                              value: _adicionarEmTodasSubsecoes,
+                              onChanged: (v) => setState(() => _adicionarEmTodasSubsecoes = v!),
+                              activeColor: corElementos,
+                              checkColor: corCheck,
+                            ),
+                            Text("Adicionar em todas\nas Subseções",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: corElementos, decoration: TextDecoration.underline)),
+                          ],
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: widget.onFechar,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            ElevatedButton(
+                              onPressed: _salvando ? null : _confirmar,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              ),
+                              child: _salvando
+                                  ? const SizedBox(width: 16, height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                  : const Text("Confirmar", style: TextStyle(color: Colors.white)),
+                            ),
+                            ElevatedButton(
+                              onPressed: _salvando ? null : widget.onFechar,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              ),
+                              child: const Text("Cancelar", style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
                         ),
-                        child: const Text(
-                          "Cancelar",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                      ],
+                    ),
             ),
           ),
         ),
@@ -161,24 +174,12 @@ class _PopupFvsPadroesState extends State<PopupFvsPadroes> {
     );
   }
 
-  // Ajustado para receber a cor do "V" (corCheck) também
-  Widget _linhaFvs(
-    Color corAtiva, 
-    Color corCheck,
-    String texto,
-    bool valor,
-    Function(bool?) onChange,
-  ) {
+  Widget _linhaFvs(Color corAtiva, Color corCheck, String texto, bool valor, Function(bool?) onChange) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(texto, style: TextStyle(color: corAtiva)),
-        Checkbox(
-          value: valor, 
-          onChanged: onChange, 
-          activeColor: corAtiva,
-          checkColor: corCheck,
-        ),
+        Checkbox(value: valor, onChanged: onChange, activeColor: corAtiva, checkColor: corCheck),
       ],
     );
   }
