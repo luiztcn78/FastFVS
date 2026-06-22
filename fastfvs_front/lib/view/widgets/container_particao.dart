@@ -2,7 +2,7 @@ import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
-class ContainerParticao extends StatelessWidget {
+class ContainerParticao extends StatefulWidget {
   final double largura;
   final double altura;
   final bool serBotao;
@@ -18,7 +18,13 @@ class ContainerParticao extends StatelessWidget {
     super.key,
   });
 
-  double get percentualConformidade => dadosParticao.percentualConformidade / 100;
+  @override
+  State<ContainerParticao> createState() => _ContainerParticaoState();
+}
+
+class _ContainerParticaoState extends State<ContainerParticao> {
+
+  double get percentualConformidade => widget.dadosParticao.percentualConformidade / 100;
 
   Widget _bolinha(Color cor) {
     return Padding(
@@ -38,16 +44,16 @@ class ContainerParticao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     verificarBotao() {
-      if (serBotao) {
-        return onTapParticao != null
-          ? () => onTapParticao!(dadosParticao)
-          : () => Navigator.of(context, rootNavigator: false).pushNamed('/particao', arguments: dadosParticao);
+      if (widget.serBotao) {
+        return widget.onTapParticao != null
+          ? () => widget.onTapParticao!(widget.dadosParticao)
+          : () => Navigator.of(context, rootNavigator: false).pushNamed('/particao', arguments: widget.dadosParticao);
       } else {
         return null;
       }
     }
 
-    double larguraBarra = largura - 45;
+    double larguraBarra = widget.largura - 45;
 
     return InkWell(
       //rota (isso dá problema no voltar, para tratar tem que definir no paginaobrastate state o comportamento do pop)
@@ -56,8 +62,8 @@ class ContainerParticao extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 15, left: 10, bottom: 15, right: 10),
         child: Container(
-          width: largura,
-          height: altura,
+          width: widget.largura,
+          height: widget.altura,
           decoration: BoxDecoration(
             border: Border.all(color: Theme.of(context).colorScheme.primary),
             borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -69,7 +75,7 @@ class ContainerParticao extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 10, left: 20, right: 7),
                 child: Text(
-                  dadosParticao.nome,
+                  widget.dadosParticao.nome,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                     fontSize: 22,
@@ -81,10 +87,10 @@ class ContainerParticao extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    if (dadosParticao.mostrarVerde)    _bolinha(Colors.green),
-                    if (dadosParticao.mostrarAmarelo)  _bolinha(Colors.yellow),
-                    if (dadosParticao.mostrarVermelho) _bolinha(Colors.red),
-                    if (dadosParticao.mostrarCinza)    _bolinha(Colors.grey),
+                    if (widget.dadosParticao.mostrarVerde)    _bolinha(Colors.green),
+                    if (widget.dadosParticao.mostrarAmarelo)  _bolinha(Colors.yellow),
+                    if (widget.dadosParticao.mostrarVermelho) _bolinha(Colors.red),
+                    if (widget.dadosParticao.mostrarCinza)    _bolinha(Colors.grey),
                   ],
                 ),
               ),
@@ -99,7 +105,7 @@ class ContainerParticao extends StatelessWidget {
                   barRadius: const Radius.circular(8),
                   animation: true,
                   animationDuration: 800,
-                  trailing: Text("${dadosParticao.percentualConformidade.toStringAsFixed(0)}%"),
+                  trailing: Text("${widget.dadosParticao.percentualConformidade.toStringAsFixed(0)}%"),
                 ),
               ),
             ],

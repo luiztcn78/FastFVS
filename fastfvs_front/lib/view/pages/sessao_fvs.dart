@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 class SessaoFvs extends StatefulWidget {
   final int subsecaoId;
   final int obraId;
+  final VoidCallback? onFvsModificada;
 
-  const SessaoFvs({required this.subsecaoId, required this.obraId, super.key});
+  const SessaoFvs({required this.subsecaoId, required this.obraId, this.onFvsModificada, super.key});
 
   @override
   State<SessaoFvs> createState() => SessaoFvsState();
@@ -54,6 +55,8 @@ class SessaoFvsState extends State<SessaoFvs> {
       itemBuilder: (context, index) {
         final fvs = listaFvs[index];
         return Fvs(
+          key: ValueKey(fvs.id),
+          onFvsModificada: widget.onFvsModificada,
           id: fvs.id,
           nome: fvs.titulo,
           status: fvs.status,

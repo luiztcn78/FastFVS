@@ -10,6 +10,7 @@ class Fvs extends StatefulWidget {
   final String? nomeUltimoEditor;
   final VoidCallback? onDeletado;
   final VoidCallback? onAtualizado;
+  final VoidCallback? onFvsModificada;
 
   const Fvs({
     required this.id,
@@ -20,6 +21,7 @@ class Fvs extends StatefulWidget {
     this.nomeUltimoEditor,
     this.onDeletado,
     this.onAtualizado,
+    this.onFvsModificada,
     super.key,
   });
 
@@ -67,9 +69,9 @@ class FvsState extends State<Fvs> {
                   dataUltimaEdicao: widget.dataUltimaEdicao,
                   nomeUltimoEditor: widget.nomeUltimoEditor,
                   onDeletado: widget.onDeletado,
-                  onAtualizado: widget.onAtualizado,
                   statusSelecionado: (cor) {
                     setState(() => status = cor);
+                    widget.onFvsModificada?.call();
                   },
                 ),
               ),

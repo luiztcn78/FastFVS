@@ -4,18 +4,26 @@ import 'package:percent_indicator/percent_indicator.dart';
 //precisa ser statefull
 //precisa recarregar quando uma fvs for modificada
 
-class InformacaoObra extends StatelessWidget {
+class InformacaoObra extends StatefulWidget {
   final double percetualObra;
   final String nomeObra;
   final int fvsConforme;
   final int fvsNaoConforme;
+  final bool carregando;
 
-  const InformacaoObra({super.key, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
+  const InformacaoObra({super.key, this.carregando = true, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
 
-  double get percetualObraDecimal => percetualObra / 100;
+  @override
+  State<InformacaoObra> createState() => _InformacaoObraState();
+}
+
+class _InformacaoObraState extends State<InformacaoObra> {
+
+  double get percetualObraDecimal => widget.percetualObra / 100;
 
   @override
   Widget build(BuildContext context) {
+    
     return Container(
       decoration: BoxDecoration(
         border: Border(
@@ -39,7 +47,7 @@ class InformacaoObra extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Theme.of(context).colorScheme.primary
                 ),
-                child: Text('${percetualObra.toStringAsFixed(0)}%', 
+                child: Text('${widget.percetualObra.toStringAsFixed(0)}%', 
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                   fontSize: 14,
                   color: Theme.of(context).colorScheme.onPrimary
@@ -61,13 +69,31 @@ class InformacaoObra extends StatelessWidget {
                   children: [
                     ConstrainedBox(
                       constraints: BoxConstraints(maxWidth: 175),
-                      child: Text(nomeObra, 
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontSize: 22,
-                        color: Theme.of(context).colorScheme.onSecondary
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(widget.nomeObra, 
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                fontSize: 22,
+                                color: Theme.of(context).colorScheme.onSecondary
+                              ),
+                            ),
+                          ),
+                          if (widget.carregando)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 6),
+                              child: SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     GestureDetector(
@@ -126,7 +152,7 @@ class InformacaoObra extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 1.0, top: 5),
-                    child: Text("$fvsConforme Conformes",
+                    child: Text("${widget.fvsConforme} Conformes",
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSecondary
@@ -148,7 +174,7 @@ class InformacaoObra extends StatelessWidget {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 1.0, top: 5),
-                    child: Text("$fvsNaoConforme Não conformes",
+                    child: Text("${widget.fvsNaoConforme} Não conformes",
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSecondary

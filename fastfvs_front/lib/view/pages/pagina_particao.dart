@@ -12,6 +12,7 @@ class PaginaParticao extends StatefulWidget {
   final int obraId;
   final Function(DadosParticao)? onTapParticao;
   final GlobalKey<SessaoFvsState>? chaveSessaoFvs;
+  final VoidCallback? onFvsModificada;
 
   const PaginaParticao({
     super.key,
@@ -19,6 +20,7 @@ class PaginaParticao extends StatefulWidget {
     required this.obraId,
     this.onTapParticao,
     this.chaveSessaoFvs,
+    this.onFvsModificada
   });
 
   @override
@@ -27,6 +29,7 @@ class PaginaParticao extends StatefulWidget {
 
 class PaginaParticaoState extends State<PaginaParticao> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
+  late DadosParticao dadosParticaoAtual;
 
   final SubsecaoService subsecaoService = SubsecaoService();
   List<DadosParticao> dadosParticoesSubsecao = [];
@@ -35,10 +38,23 @@ class PaginaParticaoState extends State<PaginaParticao> {
   @override
   void initState() {
     super.initState();
+    dadosParticaoAtual = widget.dadosParticao;
     _carregarDados();
   }
 
+  void _onFvsModificada() {
+    _carregarDados();               // recarrega e atualiza ContainerParticao
+    widget.onFvsModificada?.call(); // propaga pra PaginaObra
+  }
+
   Future<void> _carregarDados() async {
+    final conformidade = await subsecaoService.getConformidade(widget.dadosParticao.id);
+    final dadosAtualizado = await subsecaoService.statusPresentesNasubsecao(
+      widget.dadosParticao.id,
+      widget.dadosParticao.nome,
+      conformidade,
+    );
+
     final subsecoes = await subsecaoService.listarFilhas(widget.dadosParticao.id);
     final dadosSubsecoes = await Future.wait(
       subsecoes.map((subsecao) async {
@@ -46,7 +62,9 @@ class PaginaParticaoState extends State<PaginaParticao> {
         return subsecaoService.statusPresentesNasubsecao(subsecao.id, subsecao.nome, conformidade);
       })
     );
+    if(!mounted) return;
     setState(() {
+      dadosParticaoAtual = dadosAtualizado;
       carregando = false;
       dadosParticoesSubsecao = dadosSubsecoes;
     });
@@ -58,7 +76,7 @@ class PaginaParticaoState extends State<PaginaParticao> {
     return Column(
       children: [
         ContainerParticao(
-          dadosParticao: widget.dadosParticao,
+          dadosParticao: dadosParticaoAtual,
           largura: MediaQuery.of(context).size.width * 0.9,
           serBotao: false,
         ),
@@ -102,6 +120,7 @@ class PaginaParticaoState extends State<PaginaParticao> {
                 default:
                   return PageRouteBuilder(
                     pageBuilder: (context, _, __) => SessaoFvs(
+                      onFvsModificada: _onFvsModificada,
                       key: widget.chaveSessaoFvs,
                       subsecaoId: widget.dadosParticao.id,
                       obraId: widget.obraId,

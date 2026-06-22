@@ -1,3 +1,5 @@
+import 'package:fastfvs_front/models/obra.dart';
+import 'package:fastfvs_front/models/subsecao.dart';
 import 'package:fastfvs_front/services/obra_service.dart';
 import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:fastfvs_front/services/subsecao_service.dart';
@@ -35,7 +37,9 @@ const List<IconData> _iconesPorProfundidade = [
 ];
 
 class PaginaCriarObra extends StatefulWidget {
-  const PaginaCriarObra({super.key});
+  /*final Obra? obra;*/
+
+  const PaginaCriarObra({/*this.obra,*/super.key});
 
   @override
   State<PaginaCriarObra> createState() => _PaginaCriarObraState();
@@ -45,6 +49,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
   final TextEditingController _nomeController = TextEditingController();
   final SubsecaoService subsecaoService = SubsecaoService();
   final ObraService obraService = ObraService();
+  bool carregando = false;
 
   // Antes: _blocos (só nível 1). Agora: raiz da árvore, qualquer profundidade.
   List<_Subsecao> _raiz = [];
@@ -76,7 +81,16 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     }
     super.dispose();
   }
-
+/*
+  @override
+  void initState(){
+    super.initState();
+    if(widget.obra != null){
+      _nomeController.text = widget.obra!.nome;
+      carregarObraEditar();
+    }
+  }
+*/
   // ---------------------------------------------------------------------
   // Criação Automática (N níveis dinâmicos)
   // ---------------------------------------------------------------------
@@ -262,6 +276,8 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
   void _finalizar() async {
     if (!_validar()) return;
     
+    setState(() => carregando = true);
+
     final usuarioId = SessaoUsuario.usuario!.id;
 
     final fvsEscolhidas = _fvs.entries.where((fvs) => fvs.value).map((fvs) => fvs.key).toList();
@@ -272,6 +288,25 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
 
     Navigator.pop(context, true);
   }
+
+
+  /*abrir edição
+
+  Future<void> carregarObraEditar() async {
+    final subsecoes = await subsecaoService.listarRaizesPorObra(widget.obra!.id);
+
+    Future<_Subsecao> converter(Subsecao subsecao) async{
+      final subsecoesFilhas = await subsecaoService.listarFilhas(subsecao.id);
+      //o Future.wait([]) funciona como caso base, pois retorna uma lista vazia
+      final subsecoesFilhasConvertidas = await Future.wait(subsecoesFilhas.map(converter));
+      return _Subsecao(nome: subsecao.nome, filhos: subsecoesFilhasConvertidas);
+    }
+
+    final raiz = await Future.wait(subsecoes.map(converter));
+
+    setState(() => _raiz = raiz);
+  }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -337,14 +372,16 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                     borderRadius: BorderRadius.circular(26),
                   ),
                 ),
-                child: Text(
-                  'Finalizar',
-                  style: TextStyle(
-                    color: cor.onPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: carregando 
+                  ? Center(child: CircularProgressIndicator( color: Colors.white,))
+                  : Text(
+                      'Finalizar',
+                      style: TextStyle(
+                        color: cor.onPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
               ),
             ),
             const SizedBox(height: 24),
