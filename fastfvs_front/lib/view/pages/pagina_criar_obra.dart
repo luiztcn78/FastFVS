@@ -1,5 +1,10 @@
+import 'package:fastfvs_front/services/obra_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
+import 'package:fastfvs_front/services/subsecao_service.dart';
 import 'package:fastfvs_front/view/widgets/contador_numero.dart';
 import 'package:flutter/material.dart';
+
+//fazer a animação do botão finalizar carregando
 
 class _Subsecao {
   String nome;
@@ -38,6 +43,8 @@ class PaginaCriarObra extends StatefulWidget {
 
 class _PaginaCriarObraState extends State<PaginaCriarObra> {
   final TextEditingController _nomeController = TextEditingController();
+  final SubsecaoService subsecaoService = SubsecaoService();
+  final ObraService obraService = ObraService();
 
   // Antes: _blocos (só nível 1). Agora: raiz da árvore, qualquer profundidade.
   List<_Subsecao> _raiz = [];
@@ -132,6 +139,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: cor.primary, width: 2),
@@ -162,7 +170,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xff84E08F),
               foregroundColor: cor.onSecondary,
-              fixedSize: const Size(110, 40),
+              fixedSize: const Size(120, 40),
               side: BorderSide(color: cor.primary, width: 2),
             ),
             child: const Text('Confirmar'),
@@ -172,7 +180,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xffFF6D6D),
               foregroundColor: cor.onSecondary,
-              fixedSize: const Size(110, 40),
+              fixedSize: const Size(120, 40),
               side: BorderSide(color: cor.primary, width: 2),
             ),
             child: const Text('Cancelar'),
@@ -227,8 +235,41 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     return true;
   }
 
-  void _finalizar() {
+  //conexão com o back
+
+  Future<void> criarSubsecoes(
+    List<_Subsecao> lista,
+    int obraId,
+    int usuarioId,
+    List<String> fvsEscolhidas,
+    int? paiId,
+    ) async {
+      for(final subsecao in lista){
+        final subsecaoCriada = await subsecaoService.criarSubsecao(subsecao.nome, 
+        obraId, 
+        usuarioId, 
+        paiId: paiId, 
+        fvsEscolhidas: fvsEscolhidas);
+
+        if(subsecao.filhos.isNotEmpty){
+          await criarSubsecoes(subsecao.filhos, obraId, usuarioId, fvsEscolhidas, subsecaoCriada.id);
+        }
+      }
+    }
+
+
+
+  void _finalizar() async {
     if (!_validar()) return;
+    
+    final usuarioId = SessaoUsuario.usuario!.id;
+
+    final fvsEscolhidas = _fvs.entries.where((fvs) => fvs.value).map((fvs) => fvs.key).toList();
+
+    final obraCriada = await obraService.criarObra(_nomeController.text.trim(), null, usuarioId);
+
+    await criarSubsecoes(_raiz, obraCriada.id, usuarioId, fvsEscolhidas, null);
+
     Navigator.pop(context, true);
   }
 

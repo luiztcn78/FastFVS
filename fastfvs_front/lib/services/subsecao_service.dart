@@ -6,9 +6,9 @@ import 'package:fastfvs_front/models/subsecao.dart';
 import 'package:http/http.dart' as http;
 
 class SubsecaoService {
-    final String urlBase = "http://192.168.1.6:8080/api/subsecao";
+    final String urlBase = "http://192.168.18.191:8080/api/subsecao";
 
-    Future<void> criarSubsecao(String nome, int obraId, int usuarioId, {int? paiId, List<String>? fvsEscolhidas}) async {
+    Future<Subsecao> criarSubsecao(String nome, int obraId, int usuarioId, {int? paiId, List<String>? fvsEscolhidas}) async {
     final response = await http.post(
       Uri.parse(urlBase),
       headers: {'Content-Type': 'application/json'},
@@ -23,6 +23,10 @@ class SubsecaoService {
 
     if (response.statusCode != 200) {
       throw Exception('Erro ao criar subsecao');
+    }
+    else{
+      final json = jsonDecode(response.body);
+      return Subsecao.fromJson(json);
     }
   }
 
@@ -80,8 +84,8 @@ class SubsecaoService {
     final response = await http.get(Uri.parse('$urlBase/$subsecaoId'));
 
     if(response.statusCode == 200) {
-
-        return Subsecao.fromJson(jsonDecode(response.body));
+      final json = jsonDecode(response.body);
+      return Subsecao.fromJson(json);
     }
     else{
       throw Exception('Erro ao buscar subseção');

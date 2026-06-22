@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+//precisa ser statefull
+//precisa recarregar quando uma fvs for modificada
+
 class InformacaoObra extends StatelessWidget {
   final double percetualObra;
   final String nomeObra;
@@ -56,12 +59,15 @@ class InformacaoObra extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(nomeObra, 
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                      fontSize: 22,
-                      color: Theme.of(context).colorScheme.onSecondary
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 175),
+                      child: Text(nomeObra, 
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        fontSize: 22,
+                        color: Theme.of(context).colorScheme.onSecondary
+                        ),
                       ),
                     ),
                     GestureDetector(

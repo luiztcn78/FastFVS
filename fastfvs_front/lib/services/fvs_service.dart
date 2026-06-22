@@ -7,7 +7,7 @@ class FvsService {
 
   //aqui tem as coisas de fvs incluindo o listar histórico
 
-  final String urlBase = "http://192.168.1.6:8080/api/fvs";
+  final String urlBase = "http://192.168.18.191:8080/api/fvs";
 
   Future<List<String>> listarFvsPadroes() async {
 
