@@ -32,8 +32,9 @@ class PaginaObraState extends State<PaginaObra> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
   final controladorNome = TextEditingController();
   final FvsService fvsService = FvsService();
-  final chaveSessaoFvs = GlobalKey<SessaoFvsState>();
+  GlobalKey<SessaoFvsState> chaveSessaoFvs = GlobalKey<SessaoFvsState>();
   DadosParticao? subsecaoAtual;
+  final List<(DadosParticao, GlobalKey<SessaoFvsState>)> _pilhaParticoesControlerPop = [];
 
   final ObraService obraService = ObraService();
   double percentualObra = 0.0;
@@ -54,6 +55,7 @@ class PaginaObraState extends State<PaginaObra> {
   }
 
   Future<void> _carregarDados() async {
+    setState(() => carregando = true);
     final percentual = await obraService.getConformidadeObra(widget.obra.id);
     final resumo = await obraService.contarStatusObra(widget.obra.id);
     final subsecoes = await subsecaoService.listarRaizesPorObra(widget.obra.id);
@@ -241,7 +243,14 @@ class PaginaObraState extends State<PaginaObra> {
         if (didPop) return;
         if (controladorNavegacao.currentState?.canPop() == true) {
           controladorNavegacao.currentState?.pop();
-          _definirOpcoesInicio();
+          _pilhaParticoesControlerPop.removeLast();
+          if (_pilhaParticoesControlerPop.isEmpty) {
+            _definirOpcoesInicio();
+          } else {
+            final (particao, chave) = _pilhaParticoesControlerPop.last;
+            chaveSessaoFvs = chave; // restaura a key correta
+            _definirOpcoesParticao(particao);
+          }
         } else {
           Navigator.of(context).pop();
         }
@@ -254,25 +263,7 @@ class PaginaObraState extends State<PaginaObra> {
         ),
         body: Column(
           children: [
-            carregando
-              ? Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(width: 2, color: Theme.of(context).colorScheme.primary)
-                    ),
-                  ),
-                child: Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  width: double.infinity, 
-                  height: 120, 
-                  color: Colors.white
-                ),
-                )
-              )
-              : InformacaoObra(nomeObra: widget.obra.nome, percetualObra: percentualObra, fvsConforme: fvsConforme, fvsNaoConforme: fvsNaoConforme,),
+            InformacaoObra(carregando: carregando, nomeObra: widget.obra.nome, percetualObra: percentualObra, fvsConforme: fvsConforme, fvsNaoConforme: fvsNaoConforme,),
             Expanded(
               child: Navigator(
                 key: controladorNavegacao,
@@ -280,11 +271,14 @@ class PaginaObraState extends State<PaginaObra> {
                   switch (settings.name) {
                     case '/particao':
                       final dadosParticao = settings.arguments as DadosParticao;
+                      chaveSessaoFvs = GlobalKey<SessaoFvsState>();
+                      _pilhaParticoesControlerPop.add((dadosParticao, chaveSessaoFvs));
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           _definirOpcoesParticao(dadosParticao);
                         });
                         return MaterialPageRoute(
                           builder: (context) => PaginaParticao(
+                            onFvsModificada: _carregarDados,
                             dadosParticao: dadosParticao,
                             obraId: widget.obra.id,
                             chaveSessaoFvs: chaveSessaoFvs,

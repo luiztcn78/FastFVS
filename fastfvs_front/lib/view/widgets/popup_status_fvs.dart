@@ -11,7 +11,6 @@ class PopUpStatusFvs extends StatefulWidget {
   final String? nomeUltimoEditor;
   final Function(Color) statusSelecionado;
   final VoidCallback? onDeletado;
-  final VoidCallback? onAtualizado;
 
   const PopUpStatusFvs({
     required this.fvsId,
@@ -21,7 +20,6 @@ class PopUpStatusFvs extends StatefulWidget {
     required this.dataUltimaEdicao,
     this.nomeUltimoEditor,
     this.onDeletado,
-    this.onAtualizado,
     super.key,
   });
 
@@ -52,7 +50,6 @@ class PopUpStatusFvsState extends State<PopUpStatusFvs> {
       final usuarioId = SessaoUsuario.usuario!.id;
       await fvsService.atualizarStatus(widget.fvsId, novoStatus, usuarioId);
       widget.statusSelecionado(cor);
-      widget.onAtualizado?.call();
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {

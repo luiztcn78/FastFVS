@@ -27,6 +27,7 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
   }
 
  Future<void> carregarObras() async {
+  setState(() => carregando = true);
   final usuarioId = SessaoUsuario.usuario!.id;
   final obras = await obraService.listarObraPorUsuario(usuarioId);
   setState(() {
