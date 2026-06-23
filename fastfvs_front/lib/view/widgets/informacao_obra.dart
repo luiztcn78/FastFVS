@@ -10,16 +10,80 @@ class InformacaoObra extends StatefulWidget {
   final int fvsConforme;
   final int fvsNaoConforme;
   final bool carregando;
+  final int obraId;
+  final Future<void> Function(String novoNome) onEditarNome; 
 
-  const InformacaoObra({super.key, this.carregando = true, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
+  const InformacaoObra({super.key, required this.onEditarNome, required this.obraId, this.carregando = true, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
 
   @override
   State<InformacaoObra> createState() => _InformacaoObraState();
 }
 
 class _InformacaoObraState extends State<InformacaoObra> {
+  final TextEditingController _nomeObraController = TextEditingController();
 
   double get percetualObraDecimal => widget.percetualObra / 100;
+
+  //dialog de editar o nome da obra
+  void _abrirDialogoNome({
+    required void Function(String) onConfirmar,
+  }) 
+  {
+    _nomeObraController.text = widget.nomeObra;
+    final cor = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: cor.primary, width: 2),
+        ),
+        title: Text(
+          "Editar nome da Obra",
+          style: TextStyle(color: cor.onSecondary, fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: _nomeObraController,
+          autofocus: true,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: cor.primary, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: cor.primary, width: 2),
+            ),
+          ),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              onConfirmar(_nomeObraController.text.trim());
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff84E08F),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Confirmar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffFF6D6D),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,10 +161,11 @@ class _InformacaoObraState extends State<InformacaoObra> {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        // puxar pra pagin de editar oubra ou aquelade adicionar sla
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaEditarObra()));
-                      },
+                      onTap: () => _abrirDialogoNome(
+                        onConfirmar: (novoNome) async {
+                          await widget.onEditarNome(novoNome);
+                        }
+                        ),
                       child: Icon(
                         Icons.edit_square, // Ícone que remete ao da imagem
                         color: Theme.of(context).colorScheme.primary,

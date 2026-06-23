@@ -13,6 +13,7 @@ class PaginaParticao extends StatefulWidget {
   final Function(DadosParticao)? onTapParticao;
   final GlobalKey<SessaoFvsState>? chaveSessaoFvs;
   final VoidCallback? onFvsModificada;
+  final VoidCallback? onNomeModificado;
 
   const PaginaParticao({
     super.key,
@@ -20,7 +21,8 @@ class PaginaParticao extends StatefulWidget {
     required this.obraId,
     this.onTapParticao,
     this.chaveSessaoFvs,
-    this.onFvsModificada
+    this.onFvsModificada,
+    this.onNomeModificado
   });
 
   @override
@@ -30,24 +32,29 @@ class PaginaParticao extends StatefulWidget {
 class PaginaParticaoState extends State<PaginaParticao> {
   final controladorNavegacao = GlobalKey<NavigatorState>();
   late DadosParticao dadosParticaoAtual;
+  late String nomeParticao;
 
   final SubsecaoService subsecaoService = SubsecaoService();
   List<DadosParticao> dadosParticoesSubsecao = [];
   bool carregando = true;
+  bool carregandoNome = false;
 
   @override
   void initState() {
     super.initState();
     dadosParticaoAtual = widget.dadosParticao;
-    _carregarDados();
+    nomeParticao = widget.dadosParticao.nome;
+    carregarDados();
   }
 
+
   void _onFvsModificada() {
-    _carregarDados();               // recarrega e atualiza ContainerParticao
+    carregarDados();               // recarrega e atualiza ContainerParticao
     widget.onFvsModificada?.call(); // propaga pra PaginaObra
   }
 
-  Future<void> _carregarDados() async {
+  Future<void> carregarDados() async {
+    setState(() => carregando = true);
     final conformidade = await subsecaoService.getConformidade(widget.dadosParticao.id);
     final dadosAtualizado = await subsecaoService.statusPresentesNasubsecao(
       widget.dadosParticao.id,
@@ -79,6 +86,25 @@ class PaginaParticaoState extends State<PaginaParticao> {
           dadosParticao: dadosParticaoAtual,
           largura: MediaQuery.of(context).size.width * 0.9,
           serBotao: false,
+          carregando: carregandoNome,
+          nomeSubsecao: nomeParticao,
+          onEditarNome: (novoNome) async {
+            try {
+              setState(() {
+                carregandoNome = true;
+              });
+              await subsecaoService.atualizarNome(widget.dadosParticao.id, novoNome);
+              setState(() {
+                nomeParticao = novoNome;
+                carregandoNome = false;
+              });
+              widget.onNomeModificado?.call();
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erro ao atualizar nome.')),
+              );
+            }
+          },
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -6,7 +6,7 @@ import 'package:fastfvs_front/models/subsecao.dart';
 import 'package:http/http.dart' as http;
 
 class SubsecaoService {
-    final String urlBase = "http://192.168.18.191:8080/api/subsecao";
+    final String urlBase = "http://192.168.3.105:8080/api/subsecao";
 
     Future<Subsecao> criarSubsecao(String nome, int obraId, int usuarioId, {int? paiId, List<String>? fvsEscolhidas}) async {
     final response = await http.post(
@@ -162,6 +162,14 @@ class SubsecaoService {
     }
     else{
       throw Exception('Erro ao informar a conformidade da subseção');
+    }
+  }
+
+  Future<void> atualizarNome(int subsecaoId, String novoNome) async {
+    final response = await http.patch(Uri.parse('$urlBase/$subsecaoId/nome?novoNome=$novoNome'));
+
+    if(response.statusCode != 200) {
+      throw Exception('Erro ao mudar nome da subseção');
     }
   }
 }

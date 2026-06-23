@@ -23,6 +23,7 @@ class _ListaContainersParticaoState extends State<ListaContainersParticao> {
           ContainerParticao(
             dadosParticao: particao,
             onTapParticao: widget.onTapParticao,
+            nomeSubsecao: particao.nome,
           ),
         ).toList(),
       ),

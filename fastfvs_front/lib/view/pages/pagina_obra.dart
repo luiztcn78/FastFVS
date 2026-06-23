@@ -34,20 +34,24 @@ class PaginaObraState extends State<PaginaObra> {
   final FvsService fvsService = FvsService();
   GlobalKey<SessaoFvsState> chaveSessaoFvs = GlobalKey<SessaoFvsState>();
   DadosParticao? subsecaoAtual;
-  final List<(DadosParticao, GlobalKey<SessaoFvsState>)> _pilhaParticoesControlerPop = [];
+  final List<(DadosParticao, GlobalKey<SessaoFvsState>, GlobalKey<PaginaParticaoState>)> _pilhaParticoesControlerPop = [];
 
   final ObraService obraService = ObraService();
   double percentualObra = 0.0;
   int fvsConforme = 0;
   int fvsNaoConforme = 0;
   bool carregando = true;
+  bool carregandoInfoObra = false;
 
   final SubsecaoService subsecaoService = SubsecaoService();
   List<DadosParticao> dadosSubsecoesRaizes = [];
 
+  late String nomeObra;
+
   @override
   void initState() {
     super.initState();
+    nomeObra = widget.obra.nome;
     _carregarDados();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _definirOpcoesInicio();
@@ -55,7 +59,10 @@ class PaginaObraState extends State<PaginaObra> {
   }
 
   Future<void> _carregarDados() async {
-    setState(() => carregando = true);
+    setState(() {
+      carregando = true;
+      carregandoInfoObra = true;
+    });
     final percentual = await obraService.getConformidadeObra(widget.obra.id);
     final resumo = await obraService.contarStatusObra(widget.obra.id);
     final subsecoes = await subsecaoService.listarRaizesPorObra(widget.obra.id);
@@ -70,6 +77,25 @@ class PaginaObraState extends State<PaginaObra> {
       fvsConforme = resumo['CONFORME'] ?? 0;
       fvsNaoConforme = resumo['NAO_CONFORME'] ?? 0;
       carregando = false;
+      carregandoInfoObra = false;
+      dadosSubsecoesRaizes = dadosSubsecoes;
+    });
+  }
+
+  Future<void> _carregarDadosBackStage() async {
+    final percentual = await obraService.getConformidadeObra(widget.obra.id);
+    final resumo = await obraService.contarStatusObra(widget.obra.id);
+    final subsecoes = await subsecaoService.listarRaizesPorObra(widget.obra.id);
+    final dadosSubsecoes = await Future.wait(
+      subsecoes.map((subsecao) async {
+        final conformidade = await subsecaoService.getConformidade(subsecao.id);
+        return subsecaoService.statusPresentesNasubsecao(subsecao.id, subsecao.nome, conformidade);
+      })
+    );
+    setState(() {
+      percentualObra = percentual;
+      fvsConforme = resumo['CONFORME'] ?? 0;
+      fvsNaoConforme = resumo['NAO_CONFORME'] ?? 0;
       dadosSubsecoesRaizes = dadosSubsecoes;
     });
   }
@@ -247,8 +273,9 @@ class PaginaObraState extends State<PaginaObra> {
           if (_pilhaParticoesControlerPop.isEmpty) {
             _definirOpcoesInicio();
           } else {
-            final (particao, chave) = _pilhaParticoesControlerPop.last;
+            final (particao, chave, chaveParticao) = _pilhaParticoesControlerPop.last;
             chaveSessaoFvs = chave; // restaura a key correta
+            chaveParticao.currentState?.carregarDados();
             _definirOpcoesParticao(particao);
           }
         } else {
@@ -263,7 +290,31 @@ class PaginaObraState extends State<PaginaObra> {
         ),
         body: Column(
           children: [
-            InformacaoObra(carregando: carregando, nomeObra: widget.obra.nome, percetualObra: percentualObra, fvsConforme: fvsConforme, fvsNaoConforme: fvsNaoConforme,),
+            InformacaoObra(
+              carregando: carregandoInfoObra || carregando, 
+              nomeObra: nomeObra, 
+              percetualObra: percentualObra, 
+              fvsConforme: fvsConforme, 
+              fvsNaoConforme: fvsNaoConforme, 
+              obraId: widget.obra.id,
+              onEditarNome: (novoNome) async {
+                setState(() {
+                  carregandoInfoObra = true;
+                });
+                try{
+                  await obraService.atualizarNome(widget.obra.id, novoNome);
+                  setState(() {
+                    nomeObra = novoNome;
+                    carregandoInfoObra = false;
+                  },);
+                }
+                catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao atualizar nome.')),
+                  );
+                }
+              },
+              ),
             Expanded(
               child: Navigator(
                 key: controladorNavegacao,
@@ -272,13 +323,16 @@ class PaginaObraState extends State<PaginaObra> {
                     case '/particao':
                       final dadosParticao = settings.arguments as DadosParticao;
                       chaveSessaoFvs = GlobalKey<SessaoFvsState>();
-                      _pilhaParticoesControlerPop.add((dadosParticao, chaveSessaoFvs));
+                      final chaveParticao = GlobalKey<PaginaParticaoState>();
+                      _pilhaParticoesControlerPop.add((dadosParticao, chaveSessaoFvs, chaveParticao));
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           _definirOpcoesParticao(dadosParticao);
                         });
                         return MaterialPageRoute(
                           builder: (context) => PaginaParticao(
+                            key: chaveParticao,
                             onFvsModificada: _carregarDados,
+                            onNomeModificado: _carregarDadosBackStage,
                             dadosParticao: dadosParticao,
                             obraId: widget.obra.id,
                             chaveSessaoFvs: chaveSessaoFvs,

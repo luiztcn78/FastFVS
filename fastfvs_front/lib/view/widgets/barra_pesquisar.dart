@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class BarraPesquisar extends StatefulWidget{
   final List<Obra> listaObras;
+  final VoidCallback? onVoltarObra;
 
-  const BarraPesquisar({required this.listaObras, super.key});
+  const BarraPesquisar({this.onVoltarObra, required this.listaObras, super.key});
 
   @override
   State<BarraPesquisar> createState() => BarraPesquisarState();
@@ -69,7 +70,7 @@ class BarraPesquisarState extends State<BarraPesquisar> {
           child: ListView.builder(
             itemCount: listaObrasFiltrada.length,
             itemBuilder: (context, index) {
-              return botao_obra(obra: listaObrasFiltrada[index]);
+              return BotaoObra(obra: listaObrasFiltrada[index], onVoltarObra: widget.onVoltarObra,);
             },
           ),
         ),

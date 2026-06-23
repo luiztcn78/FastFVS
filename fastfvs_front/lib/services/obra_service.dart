@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 
 class ObraService {
 
-  final String urlBase = "http://192.168.18.191:8080/api/obras";
+  final String urlBase = "http://192.168.3.105:8080/api/obras";
 
   Future<Obra> criarObra(String nome, String? linkProjeto, int usuarioId) async {
     final response = await http.post(

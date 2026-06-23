@@ -67,7 +67,7 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
               Expanded(
                 child: carregando
                   ? const Center(child: CircularProgressIndicator())
-                  : BarraPesquisar(listaObras: listaObras),
+                  : BarraPesquisar(listaObras: listaObras, onVoltarObra: carregarObras,),
               ),
             ],
           ),
