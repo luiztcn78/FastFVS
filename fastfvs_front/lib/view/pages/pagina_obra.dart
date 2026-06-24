@@ -108,14 +108,14 @@ class PaginaObraState extends State<PaginaObra> {
     opcoes.value = [
       OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
-      }),
+      }, indice: 2,),
       OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap: () => {
         showDialog(
           context: context,
           builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
         )
-      }),
-      OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: _mostrarDialogAdicionarSubsecao)
+      }, indice: 1,),
+      OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: _mostrarDialogAdicionarSubsecao, indice: 0,)
     ];
   }
 
@@ -242,7 +242,7 @@ class PaginaObraState extends State<PaginaObra> {
           );
         }
       );
-    }),
+    }, indice: 3,),
     OpcoesMenuSuspenso(nome: 'Adicionar fvs', onTap: () {
       showDialog(
         context: context,
@@ -255,11 +255,11 @@ class PaginaObraState extends State<PaginaObra> {
           onSucesso: () => chaveSessaoFvs.currentState?.carregarFvs(),
         ),
       );
-    }),
+    }, indice: 2,),
     OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
-    }),
-    OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: () => _mostrarDialogAdicionarSubsecao(subsecaoParentId: subsecaoAtual!.id)),
+    }, indice: 1),
+    OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: () => _mostrarDialogAdicionarSubsecao(subsecaoParentId: subsecaoAtual!.id), indice: 0,),
   ];
 }
 
