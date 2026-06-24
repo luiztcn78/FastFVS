@@ -37,8 +37,6 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
     ).showSnackBar(SnackBar(content: Text(mensagem)));
   }
 
-  // Método _buildFotoPerfil removido
-
   Future<void> _editarFoto() async {
     final usuario = SessaoUsuario.usuario;
     if (usuario == null) return;

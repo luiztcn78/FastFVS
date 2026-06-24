@@ -220,7 +220,7 @@ class _InformacaoObraState extends State<InformacaoObra> {
                         ),
                       child: Icon(
                         Icons.edit_square,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         size: 24,
                       ),
                     ),
@@ -231,7 +231,7 @@ class _InformacaoObraState extends State<InformacaoObra> {
                         }),
                       child: Icon(
                         Icons.delete_forever,
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         size: 25,
                       ),
                     ),
