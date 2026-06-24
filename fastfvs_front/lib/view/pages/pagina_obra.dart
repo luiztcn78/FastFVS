@@ -115,6 +115,7 @@ class PaginaObraState extends State<PaginaObra> {
           builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
         )
       }),
+      OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: _mostrarDialogAdicionarSubsecao)
     ];
   }
 
@@ -258,8 +259,113 @@ class PaginaObraState extends State<PaginaObra> {
     OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
     }),
+    OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: () => _mostrarDialogAdicionarSubsecao(subsecaoParentId: subsecaoAtual!.id)),
   ];
 }
+
+//pop up adicionar subsecao
+
+  void _mostrarDialogAdicionarSubsecao({int? subsecaoParentId}) {
+    final controladorNomeSubsecao = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool salvando = false;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) => AlertDialog(
+            insetPadding: const EdgeInsets.symmetric(horizontal: 16),
+            title: Text(
+              'Adicionar Subseção',
+              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                fontSize: 22,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+            ),
+            content: TextField(
+              controller: controladorNomeSubsecao,
+              decoration: InputDecoration(
+                labelText: 'Nome da Subseção',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.zero,
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              ElevatedButton(
+                onPressed: salvando
+                    ? null
+                    : () async {
+                        final nome = controladorNomeSubsecao.text.trim();
+                        if (nome.isEmpty) return;
+                        setStateDialog(() => salvando = true);
+                        try {
+                          await subsecaoService.criarSubsecao(
+                            nome,
+                            widget.obra.id,
+                            SessaoUsuario.usuario!.id,
+                            paiId: subsecaoParentId, // null = raiz
+                          );
+                          if (context.mounted) Navigator.pop(context);
+
+                          if(subsecaoParentId == null){
+                            _carregarDados(); 
+                          }
+                          else{
+                            if (_pilhaParticoesControlerPop.isNotEmpty) {
+                              final (_, __, chaveParticao) = _pilhaParticoesControlerPop.last;
+                              chaveParticao.currentState?.carregarDados();
+                            }
+                          }
+                        } catch (e) {
+                          setStateDialog(() => salvando = false);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString().replaceAll('Exception: ', ''))),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff84E08F),
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  fixedSize: const Size(120, 40),
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+                child: salvando
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Confirmar'),
+              ),
+              ElevatedButton(
+                onPressed: salvando ? null : () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  fixedSize: const Size(110, 40),
+                  backgroundColor: const Color(0xffFF6D6D),
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                  side: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2),
+                ),
+                child: const Text('Cancelar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -314,6 +420,24 @@ class PaginaObraState extends State<PaginaObra> {
                   );
                 }
               },
+              onExcluirObra: (obraId) async {
+                try{
+                  setState(() {
+                    carregando = true;
+                  });
+                  await obraService.deletarObra(obraId);
+                  if(context.mounted){
+                    Navigator.of(context).pop();
+                  }
+                }
+                catch(e){
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao excluir obra.')),
+                    );
+                  }
+                }
+              },
               ),
             Expanded(
               child: Navigator(
@@ -333,6 +457,18 @@ class PaginaObraState extends State<PaginaObra> {
                             key: chaveParticao,
                             onFvsModificada: _carregarDados,
                             onNomeModificado: _carregarDadosBackStage,
+                            onSubsecaoExcluida: () {
+                              _pilhaParticoesControlerPop.removeLast();
+                              if (_pilhaParticoesControlerPop.isEmpty) {
+                                _definirOpcoesInicio();
+                              } else {
+                                final (particao, chave, chaveParticao) = _pilhaParticoesControlerPop.last;
+                                chaveSessaoFvs = chave;
+                                chaveParticao.currentState?.carregarDados();
+                                _definirOpcoesParticao(particao);
+                              }
+                              _carregarDados();
+                            },
                             dadosParticao: dadosParticao,
                             obraId: widget.obra.id,
                             chaveSessaoFvs: chaveSessaoFvs,

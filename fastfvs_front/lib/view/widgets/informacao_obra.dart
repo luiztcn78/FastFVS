@@ -12,8 +12,9 @@ class InformacaoObra extends StatefulWidget {
   final bool carregando;
   final int obraId;
   final Future<void> Function(String novoNome) onEditarNome; 
+  final Future<void> Function(int obraId) onExcluirObra;
 
-  const InformacaoObra({super.key, required this.onEditarNome, required this.obraId, this.carregando = true, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
+  const InformacaoObra({super.key, required this.onExcluirObra, required this.onEditarNome, required this.obraId, this.carregando = true, required this.percetualObra, required this.nomeObra, required this.fvsConforme, required this.fvsNaoConforme});
 
   @override
   State<InformacaoObra> createState() => _InformacaoObraState();
@@ -60,6 +61,57 @@ class _InformacaoObraState extends State<InformacaoObra> {
           ElevatedButton(
             onPressed: () {
               onConfirmar(_nomeObraController.text.trim());
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff84E08F),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Confirmar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffFF6D6D),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _abrirDialogoExcluirObra({
+    required void Function(int) onConfirmar,
+  }) 
+  {
+    final cor = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: cor.primary, width: 2),
+        ),
+        title: Text(
+          "Deseja excluir a obra?",
+          style: TextStyle(color: cor.onSecondary, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          "Esta ação não poderá ser revertida!",
+          style: TextStyle(color: cor.onSecondary, fontWeight: FontWeight.bold),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              onConfirmar(widget.obraId);
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
@@ -132,7 +184,7 @@ class _InformacaoObraState extends State<InformacaoObra> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: 175),
+                      constraints: BoxConstraints(maxWidth: 165),
                       child: Row(
                         children: [
                           Expanded(
@@ -167,9 +219,20 @@ class _InformacaoObraState extends State<InformacaoObra> {
                         }
                         ),
                       child: Icon(
-                        Icons.edit_square, // Ícone que remete ao da imagem
+                        Icons.edit_square,
                         color: Theme.of(context).colorScheme.primary,
                         size: 24,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => _abrirDialogoExcluirObra(
+                        onConfirmar: (obraId) async {
+                          await widget.onExcluirObra(obraId);
+                        }),
+                      child: Icon(
+                        Icons.delete_forever,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 25,
                       ),
                     ),
                   ],

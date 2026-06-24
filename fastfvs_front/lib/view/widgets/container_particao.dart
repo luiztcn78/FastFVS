@@ -8,7 +8,8 @@ class ContainerParticao extends StatefulWidget {
   final bool serBotao;
   final DadosParticao dadosParticao;
   final Function(DadosParticao)? onTapParticao;
-  final Future<void >Function(String novoNome)? onEditarNome;
+  final Future<void> Function(String novoNome)? onEditarNome;
+  final Future<void> Function(int subsecaoId)? onExcluirSubsecao;
   final String nomeSubsecao;
   final bool carregando;
 
@@ -19,6 +20,7 @@ class ContainerParticao extends StatefulWidget {
     this.altura = 100,
     this.onTapParticao,
     this.onEditarNome,
+    this.onExcluirSubsecao,
     required this.nomeSubsecao,
     this.carregando = false,
     super.key,
@@ -101,6 +103,57 @@ class _ContainerParticaoState extends State<ContainerParticao> {
       ),
     );
   }
+  //excluir particao
+  void _abrirDialogoExcluirObra({
+    required void Function(int) onConfirmar,
+  }) 
+  {
+    final cor = Theme.of(context).colorScheme;
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        insetPadding: EdgeInsets.symmetric(horizontal: 5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: cor.primary, width: 2),
+        ),
+        title: Text(
+          "Deseja excluir a Subseção?",
+          style: TextStyle(color: cor.onSecondary, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          "Esta ação não poderá ser revertida!",
+          style: TextStyle(color: cor.onSecondary, fontWeight: FontWeight.bold),
+        ),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              onConfirmar(widget.dadosParticao.id);
+              Navigator.of(context, rootNavigator: true).pop();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xff84E08F),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Confirmar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffFF6D6D),
+              foregroundColor: cor.onSecondary,
+              fixedSize: const Size(120, 40),
+              side: BorderSide(color: cor.primary, width: 2),
+            ),
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _bolinha(Color cor) {
     return Padding(
@@ -156,7 +209,9 @@ class _ContainerParticaoState extends State<ContainerParticao> {
                     Row(
                       children: [
                         ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: larguraBarra),
+                          constraints: widget.serBotao
+                          ? BoxConstraints(maxWidth: larguraBarra)
+                          : BoxConstraints(maxWidth: larguraBarra-45),
                           child: Text(
                             widget.nomeSubsecao,
                             overflow: TextOverflow.ellipsis,
@@ -181,18 +236,33 @@ class _ContainerParticaoState extends State<ContainerParticao> {
                       ],
                     ),
                     if (!widget.serBotao && widget.onEditarNome != null)
-                        GestureDetector(
-                          onTap: () => _abrirDialogoNome(
-                            onConfirmar: (novoNome) async {
-                              await widget.onEditarNome!(novoNome);
-                            },
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _abrirDialogoNome(
+                              onConfirmar: (novoNome) async {
+                                await widget.onEditarNome!(novoNome);
+                              },
+                            ),
+                            child: Icon(
+                              Icons.edit_square,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 24,
+                            ),
                           ),
-                          child: Icon(
-                            Icons.edit_square,
-                            color: Theme.of(context).colorScheme.primary,
-                            size: 24,
-                          ),
-                        ),
+                          GestureDetector(
+                            onTap: () => _abrirDialogoExcluirObra(
+                              onConfirmar: (subsecaoId) async {
+                                await widget.onExcluirSubsecao!(subsecaoId);
+                              }),
+                            child: Icon(
+                              Icons.delete_forever,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 25,
+                            ),
+                          ), 
+                        ],
+                      )
                   ],
                 ),
               ),

@@ -14,6 +14,7 @@ class PaginaParticao extends StatefulWidget {
   final GlobalKey<SessaoFvsState>? chaveSessaoFvs;
   final VoidCallback? onFvsModificada;
   final VoidCallback? onNomeModificado;
+  final VoidCallback? onSubsecaoExcluida;
 
   const PaginaParticao({
     super.key,
@@ -22,7 +23,8 @@ class PaginaParticao extends StatefulWidget {
     this.onTapParticao,
     this.chaveSessaoFvs,
     this.onFvsModificada,
-    this.onNomeModificado
+    this.onNomeModificado,
+    this.onSubsecaoExcluida
   });
 
   @override
@@ -105,6 +107,25 @@ class PaginaParticaoState extends State<PaginaParticao> {
               );
             }
           },
+          onExcluirSubsecao: (subsecaoId) async {
+            try{
+              setState(() {
+                carregando = true;
+              });
+              widget.onSubsecaoExcluida!.call();
+              await subsecaoService.deletarSubsecao(subsecaoId);
+              if(context.mounted){
+                Navigator.of(context).pop();
+              }
+            }
+            catch(e){
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Erro ao excluir Subseção.')),
+                );
+              }
+            }
+          }
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
