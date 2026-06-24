@@ -39,7 +39,7 @@ class _PaginaRecuperarSenhaState extends State<PaginaRecuperarSenha> {
                     Text(
                       'Sistema de Gestão de FVS',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         shadows: [
                           Shadow(
                             offset: const Offset(1.0, 1.0),
@@ -115,7 +115,7 @@ class _PaginaRecuperarSenhaState extends State<PaginaRecuperarSenha> {
                                   }
                                 },
                                 style: buttonStyleFilled,
-                                child: const Text('Enviar', style: TextStyle(fontSize: 14)),
+                                child: const Text('Enviar', style: TextStyle(fontSize: 14, color: Colors.white)),
                               ),
                             ),
                           ],

@@ -61,14 +61,14 @@ class _PaginaLoginState extends State<PaginaLogin> {
                   Text(
                     'Sistema de Gestão de FVS',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       shadows: [
                         Shadow(
                           offset: const Offset(1.0, 1.0),
                           blurRadius: 3.0,
                           color: Theme.of(
                             context,
-                          ).colorScheme.primary.withOpacity(0.3),
+                          ).colorScheme.onSecondary.withOpacity(0.3),
                         ),
                       ],
                       fontSize: 18,
@@ -140,7 +140,7 @@ class _PaginaLoginState extends State<PaginaLogin> {
                                   _ocultarSenha
                                       ? Icons.visibility_off
                                       : Icons.visibility,
-                                  color: Colors.grey,
+                                  color: Theme.of(context).colorScheme.primary,
                                   size: 20,
                                 ),
                               ),
@@ -260,9 +260,9 @@ class _PaginaLoginState extends State<PaginaLogin> {
                                             strokeWidth: 2,
                                           ),
                                         )
-                                      : const Text(
+                                      : Text(
                                           'Entrar',
-                                          style: TextStyle(fontSize: 13),
+                                          style: TextStyle(fontSize: 13, color: Colors.white),
                                         ),
                                 ),
                               ),
@@ -281,27 +281,14 @@ class _PaginaLoginState extends State<PaginaLogin> {
                           ),
                           const SizedBox(height: 10),
 
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {},
-                              icon: const FaIcon(
-                                FontAwesomeIcons.google,
-                                size: 20,
-                              ),
-                              label: const Text('Entrar com Google'),
-                              style: buttonStyleFilled,
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
+                          //const SizedBox(height: 20),
 
                           Center(
                             child: Column(
                               children: [
-                                const Text(
+                                Text(
                                   "Não tem conta?",
-                                  style: TextStyle(fontSize: 14),
+                                  style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.primary),
                                 ),
                                 const SizedBox(height: 5),
                                 GestureDetector(

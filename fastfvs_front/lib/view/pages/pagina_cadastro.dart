@@ -252,27 +252,15 @@ class _PaginaCadastroState extends State<PaginaCadastro> {
                                         strokeWidth: 2,
                                       ),
                                     )
-                                  : const Text(
+                                  : Text(
                                       'Cadastrar',
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(fontSize: 14, color: Colors.white),
                                     ),
                             ),
                           ),
 
                           const SizedBox(height: 20),
 
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {},
-                              icon: const FaIcon(
-                                FontAwesomeIcons.google,
-                                size: 20,
-                              ),
-                              label: const Text('Entrar com Google'),
-                              style: buttonStyleFilled,
-                            ),
-                          ),
                         ],
                       ),
                     ),

@@ -49,13 +49,13 @@ class BotaoInputAcesso extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(
-                color: Colors.grey[400],
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 14,
                 fontWeight: FontWeight.normal,
               ),
               filled: true,
               isDense: true,
-              fillColor: Theme.of(context).colorScheme.secondary,
+              fillColor: Colors.white,
               suffixIcon: suffixIcon,
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               border: OutlineInputBorder(

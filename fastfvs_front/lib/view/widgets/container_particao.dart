@@ -288,7 +288,12 @@ class _ContainerParticaoState extends State<ContainerParticao> {
                   barRadius: const Radius.circular(8),
                   animation: true,
                   animationDuration: 800,
-                  trailing: Text("${widget.dadosParticao.percentualConformidade.toStringAsFixed(0)}%"),
+                  trailing: Text(
+                    "${widget.dadosParticao.percentualConformidade.toStringAsFixed(0)}%",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                    ),
+                  ),
                 ),
               ),
             ],

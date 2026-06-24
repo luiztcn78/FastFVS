@@ -173,10 +173,10 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                       onTap: _salvando ? null : _editarFoto,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(Icons.edit_outlined, size: 18),
                           SizedBox(width: 4),
-                          Text('Editar foto'),
+                          Text('Editar foto', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,)),
                         ],
                       ),
                     ),
@@ -222,9 +222,10 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                   Text(
                     'Nome:',
                     style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
                     ),
@@ -233,6 +234,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(text: nome),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
@@ -245,16 +247,17 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                             showDialog(
                               context: context,
                               builder: (dialogContext) => AlertDialog(
-                                title: const Center(child: Text('Editar Nome')),
+                                title:  Center(child: Text('Editar Nome', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),)),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                     Text(
                                       'Nome:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         decoration: TextDecoration.underline,
+                                        color: Theme.of(context).colorScheme.onSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -305,17 +308,19 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                           },
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                   Text(
                     'Email:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                   const SizedBox(height: 6),
                   TextField(
                     readOnly: true,
                     controller: TextEditingController(text: email),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
@@ -328,18 +333,20 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                             showDialog(
                               context: context,
                               builder: (dialogContext) => AlertDialog(
-                                title: const Center(
-                                  child: Text('Editar Email'),
+                                title:  Center(
+                                  child: Text('Editar Email',
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),),
                                 ),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                     Text(
                                       'Email:',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         decoration: TextDecoration.underline,
+                                        color: Theme.of(context).colorScheme.onSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
@@ -348,6 +355,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                                       decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                       ),
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                                     ),
                                   ],
                                 ),
@@ -390,11 +398,12 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                           },
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                   Text(
                     'Senha:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       decoration: TextDecoration.underline,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -402,6 +411,7 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                     readOnly: true,
                     obscureText: !_senhaVisivel,
                     controller: TextEditingController(text: '••••••••'),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
@@ -425,38 +435,41 @@ class _PaginaPerfilState extends State<PaginaPerfil> {
                             showDialog(
                               context: context,
                               builder: (dialogContext) => AlertDialog(
-                                title: const Center(
-                                  child: Text('Editar Senha'),
+                                title:  Center(
+                                  child: Text('Editar Senha',style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),),
                                 ),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text('Senha atual:'),
+                                     Text('Senha atual:',style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: senhaAtualController,
                                       obscureText: true,
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                                       decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 12),
-                                    const Text('Nova senha:'),
+                                     Text('Nova senha:',style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: novaSenhaController,
                                       obscureText: true,
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                                       decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                       ),
                                     ),
                                     const SizedBox(height: 12),
-                                    const Text('Confirmar senha:'),
+                                     Text('Confirmar senha:',style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),),
                                     const SizedBox(height: 8),
                                     TextField(
                                       controller: confirmarSenhaController,
                                       obscureText: true,
+                                      style: TextStyle(color: Theme.of(context).colorScheme.onSecondary,),
                                       decoration: const InputDecoration(
                                         border: OutlineInputBorder(),
                                       ),

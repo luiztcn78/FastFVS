@@ -49,7 +49,7 @@ class _PaginaRedefinirSenhaState extends State<PaginaRedefinirSenha> {
                     Text(
                       'Sistema de Gestão de FVS',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.onSecondary,
                         shadows: [
                           Shadow(
                             offset: const Offset(1.0, 1.0),
@@ -123,7 +123,7 @@ class _PaginaRedefinirSenhaState extends State<PaginaRedefinirSenha> {
                                   }
                                 },
                                 style: buttonStyleFilled,
-                                child: const Text('Confirmar', style: TextStyle(fontSize: 14)),
+                                child: const Text('Confirmar', style: TextStyle(fontSize: 14,color: Colors.white)),
                               ),
                             ),
                           ],

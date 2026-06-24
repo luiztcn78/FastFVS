@@ -111,8 +111,11 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     for (final nivel in _niveisAuto) {
       if (nivel.nomeController.text.trim().isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preencha o nome de todos os níveis.'),
+          SnackBar(backgroundColor: Theme.of(context).colorScheme.primary,
+            content: Text(
+              'Preencha o nome de todos os níveis.',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+            ),
           ),
         );
         return;
@@ -153,7 +156,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        insetPadding: EdgeInsets.symmetric(horizontal: 5),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: cor.primary, width: 2),
@@ -165,6 +168,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
         content: TextField(
           controller: ctrl,
           autofocus: true,
+          style: TextStyle(color: cor.onSecondary),
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: cor.primary, width: 2),
@@ -187,7 +191,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
               fixedSize: const Size(120, 40),
               side: BorderSide(color: cor.primary, width: 2),
             ),
-            child: const Text('Confirmar'),
+            child: Text('Confirmar', style: TextStyle(color: cor.onSecondary)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context),
@@ -197,7 +201,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
               fixedSize: const Size(120, 40),
               side: BorderSide(color: cor.primary, width: 2),
             ),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: cor.onSecondary)),
           ),
         ],
       ),
@@ -243,7 +247,8 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     if (_nomeController.text.trim().isEmpty) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Informe o nome da obra.')));
+      ).showSnackBar(SnackBar(backgroundColor: Theme.of(context).colorScheme.primary, 
+      content: Text('Informe o nome da obra.', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))));
       return false;
     }
     return true;
@@ -324,7 +329,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
         title: Text(
           'Nova Obra',
           style: TextStyle(
-            color: cor.onPrimary,
+            color: cor.onPrimary, // CORRIGIDO PARA onPrimary
             fontWeight: FontWeight.bold,
             fontSize: largura * 0.05,
           ),
@@ -373,11 +378,11 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                   ),
                 ),
                 child: carregando 
-                  ? Center(child: CircularProgressIndicator( color: Colors.white,))
+                  ? const Center(child: CircularProgressIndicator( color: Colors.white,))
                   : Text(
                       'Finalizar',
                       style: TextStyle(
-                        color: cor.onPrimary,
+                        color: cor.onPrimary, // CORRIGIDO PARA onPrimary
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -395,7 +400,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
     return Text(
       titulo,
       style: TextStyle(
-        color: cor.onSecondary,
+        color: cor.onSurface,
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,
@@ -426,7 +431,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                 builder: (_, value, __) => Text(
                   value.text.isEmpty ? 'Toque para nomear' : value.text,
                   style: TextStyle(
-                    color: cor.onPrimary,
+                    color: cor.onPrimary, // CORRIGIDO PARA onPrimary
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
                   ),
@@ -459,7 +464,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
               child: Text(
                 'Nenhuma estrutura. Use "Criação Automática" ou adicione manualmente.',
                 style: TextStyle(
-                  color: cor.primary.withOpacity(0.6),
+                  color: cor.onSurface,
                   fontSize: 13,
                 ),
                 textAlign: TextAlign.center,
@@ -474,7 +479,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
               icon: Icon(Icons.add, color: cor.primary, size: 18),
               label: Text(
                 'Adicionar Item',
-                style: TextStyle(color: cor.primary, fontSize: 13),
+                style: TextStyle(color: cor.onSurface, fontSize: 13),
               ),
             ),
           ),
@@ -514,7 +519,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
               Icon(icone, color: cor.primary, size: 18),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(no.nome, style: TextStyle(color: cor.primary)),
+                child: Text(no.nome, style: TextStyle(color: cor.onSurface)),
               ),
               GestureDetector(
                 onTap: () => _editarNo(no),
@@ -570,7 +575,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                     child: Text(
                       titulo,
                       style: TextStyle(
-                        color: cor.primary,
+                        color: cor.onSurface,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
@@ -607,14 +612,14 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
         Text(
           'Definir níveis de hierarquia:',
           style: TextStyle(
-            color: cor.primary,
+            color: cor.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
         ),
         Text(
           'A ordem abaixo define a hierarquia (do nível 1, mais externo, ao mais interno).',
-          style: TextStyle(color: cor.primary.withOpacity(0.6), fontSize: 11),
+          style: TextStyle(color: cor.onSurface, fontSize: 11),
         ),
         const SizedBox(height: 14),
         ..._niveisAuto.asMap().entries.map((entry) {
@@ -628,7 +633,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                 Text(
                   'Nível ${indice + 1}',
                   style: TextStyle(
-                    color: cor.primary.withOpacity(0.6),
+                    color: cor.onSurface,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -639,7 +644,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                     Expanded(
                       child: TextField(
                         controller: nivel.nomeController,
-                        style: TextStyle(color: cor.onSecondary, fontSize: 13),
+                        style: TextStyle(color: cor.onSurface, fontSize: 13),
                         decoration: InputDecoration(
                           isDense: true,
                           hintText: 'Ex: Bloco, Quarto...',
@@ -688,7 +693,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             icon: Icon(Icons.add, color: cor.primary, size: 18),
             label: Text(
               'Adicionar Nível',
-              style: TextStyle(color: cor.primary, fontSize: 13),
+              style: TextStyle(color: cor.onSurface, fontSize: 13),
             ),
           ),
         ),
@@ -703,7 +708,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            child: Text('Aplicar', style: TextStyle(color: cor.onPrimary)),
+            child: Text('Aplicar', style: TextStyle(color: cor.onPrimary)), // CORRIGIDO PARA onPrimary
           ),
         ),
       ],
@@ -720,7 +725,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             children: [
               Text(
                 entry.key,
-                style: TextStyle(color: cor.primary, fontSize: 13),
+                style: TextStyle(color: cor.onSurface, fontSize: 13),
               ),
               Checkbox(
                 value: entry.value,
@@ -738,7 +743,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
             icon: Icon(Icons.check, color: cor.primary, size: 18),
             label: Text(
               'Confirmar',
-              style: TextStyle(color: cor.primary, fontSize: 13),
+              style: TextStyle(color: cor.onSurface, fontSize: 13),
             ),
           ),
         ),
