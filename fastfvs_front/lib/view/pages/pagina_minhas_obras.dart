@@ -28,15 +28,22 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
 
  Future<void> carregarObras() async {
   setState(() => carregando = true);
-  final usuarioId = SessaoUsuario.usuario!.id;
-  final obras = await obraService.listarObraPorUsuario(usuarioId);
+
+  final usuario = SessaoUsuario.usuario;
+  if (usuario == null) {
+    // sessão perdida, manda pro login
+    if (mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+    return;
+  }
+
+  final obras = await obraService.listarObraPorUsuario(usuario.id);
   setState(() {
     listaObras = obras;
     carregando = false;
   });
 }
-
-
 
   @override
   Widget build(BuildContext context) {

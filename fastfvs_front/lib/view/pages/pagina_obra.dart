@@ -115,8 +115,10 @@ class PaginaObraState extends State<PaginaObra> {
       OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap: () => {
         showDialog(
           context: context,
-          builder: (_) => PopupCompartilhar(onFechar: () => Navigator.pop(context)),
-        )
+          builder: (_) => PopupCompartilhar(
+            obraId: widget.obra.id,
+            onFechar: () => Navigator.pop(context),
+          )),              
       }, indice: 1,),
       OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: _mostrarDialogAdicionarSubsecao, indice: 0,)
     ];
