@@ -19,7 +19,7 @@ class _PaginaCarregamentoState extends State<PaginaCarregamento> {
   Future<void> _iniciarCarregamento() async {
     final results = await Future.wait([
       SessaoUsuario.recarregarSessaoSalva(),
-      Future.delayed(const Duration(seconds: 30)),
+      Future.delayed(const Duration(seconds: 2)),
     ]);
     final temSessao = results[0] as bool;
 
