@@ -20,8 +20,9 @@ class _PaginaConfiguracaoState extends State<PaginaConfiguracao> {
 
   // Método _buildFotoPerfil removido
 
-  void _sairDaConta(BuildContext context) {
-    SessaoUsuario.encerrar();
+  Future<void> _sairDaConta(BuildContext context) async {
+    await SessaoUsuario.encerrar();
+    if (!context.mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
@@ -33,7 +34,7 @@ class _PaginaConfiguracaoState extends State<PaginaConfiguracao> {
 
     try {
       await _usuarioService.excluirConta(usuario.id);
-      SessaoUsuario.encerrar();
+      await SessaoUsuario.encerrar();
       if (!context.mounted) return;
       Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     } catch (e) {

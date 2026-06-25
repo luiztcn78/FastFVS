@@ -114,7 +114,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
           SnackBar(backgroundColor: Theme.of(context).colorScheme.primary,
             content: Text(
               'Preencha o nome de todos os níveis.',
-              style: TextStyle(color: Theme.of(context).colorScheme.onSecondary),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         );
@@ -248,7 +248,7 @@ class _PaginaCriarObraState extends State<PaginaCriarObra> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(backgroundColor: Theme.of(context).colorScheme.primary, 
-      content: Text('Informe o nome da obra.', style: TextStyle(color: Theme.of(context).colorScheme.onSecondary))));
+      content: Text('Informe o nome da obra.', style: TextStyle(color: Colors.white))));
       return false;
     }
     return true;

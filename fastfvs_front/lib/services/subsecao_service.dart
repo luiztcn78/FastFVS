@@ -6,7 +6,7 @@ import 'package:fastfvs_front/models/subsecao.dart';
 import 'package:http/http.dart' as http;
 
 class SubsecaoService {
-    final String urlBase = "http://192.168.1.6:8080/api/subsecao";
+    final String urlBase = "http://192.168.1.7:8080/api/subsecao";
 
     Future<Subsecao> criarSubsecao(String nome, int obraId, int usuarioId, {int? paiId, List<String>? fvsEscolhidas}) async {
     final response = await http.post(
@@ -121,7 +121,7 @@ class SubsecaoService {
   }
 
   Future<String> obterLink(int subsecaoId) async {
-    final response = await http.get(Uri.parse('$urlBase/$subsecaoId/link'));
+    final response = await http.get(Uri.parse('$urlBase/$subsecaoId/qrcode'));
 
     if(response.statusCode == 200) {
       final json = jsonDecode(response.body);
@@ -134,7 +134,7 @@ class SubsecaoService {
   }
 
   Future<CompartilhamentoDTO> obterQrCode(int subsecaoId) async {
-    final response = await http.get(Uri.parse('$urlBase/$subsecaoId/link'));
+    final response = await http.get(Uri.parse('$urlBase/$subsecaoId/qrcode'));
 
     if (response.statusCode == 200) {
       return CompartilhamentoDTO.fromJson(jsonDecode(response.body));

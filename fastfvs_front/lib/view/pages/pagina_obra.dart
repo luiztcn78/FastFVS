@@ -107,7 +107,10 @@ class PaginaObraState extends State<PaginaObra> {
   void _definirOpcoesInicio() {
     opcoes.value = [
       OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaQrCode(
+          titulo: nomeObra,
+          carregarQrCode: () => obraService.obterQrCodeObra(widget.obra.id),
+        )));
       }, indice: 2,),
       OpcoesMenuSuspenso(nome: "Compatilhar acesso", onTap: () => {
         showDialog(
@@ -257,7 +260,10 @@ class PaginaObraState extends State<PaginaObra> {
       );
     }, indice: 2,),
     OpcoesMenuSuspenso(nome: 'Qr Code', onTap: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const PaginaQrCode()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaQrCode(
+        titulo: subsecaoAtual!.nome,
+        carregarQrCode: () => subsecaoService.obterQrCode(subsecaoAtual!.id),
+      )));
     }, indice: 1),
     OpcoesMenuSuspenso(nome: "Adicionar Subseção", onTap: () => _mostrarDialogAdicionarSubsecao(subsecaoParentId: subsecaoAtual!.id), indice: 0,),
   ];
