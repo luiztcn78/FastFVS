@@ -1,73 +1,103 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter/material.dart';
-import 'package:fastfvs_front/models/compartilhamento_dto.dart';
+import 'package:fastfvs_front/models/obra.dart';
+import 'package:fastfvs_front/services/obra_service.dart';
+import 'package:fastfvs_front/services/sessao_usuario.dart';
+import 'package:fastfvs_front/services/subsecao_service.dart';
+import 'package:fastfvs_front/models/dados_particao.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
-import 'package:universal_html/html.dart' as html;
+import 'package:fastfvs_front/view/pages/pagina_obra.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
-class PaginaQrCode extends StatefulWidget {
-  final Future<CompartilhamentoDTO> Function() carregarQrCode;
-  final String titulo;
-
-  const PaginaQrCode({
-    required this.carregarQrCode,
-    required this.titulo,
-    super.key,
-  });
+class PaginaLerQrcode extends StatefulWidget {
+  const PaginaLerQrcode({super.key});
 
   @override
-  State<PaginaQrCode> createState() => _PaginaQrCodeState();
+  State<PaginaLerQrcode> createState() => _PaginaLerQrcodeState();
 }
 
-class _PaginaQrCodeState extends State<PaginaQrCode> {
-  CompartilhamentoDTO? _dados;
-  bool _carregando = true;
-  String _erro = '';
+class _PaginaLerQrcodeState extends State<PaginaLerQrcode> {
+  String? codigoLido;
+  bool _processando = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _carregar();
+  final ObraService _obraService = ObraService();
+
+  // Extrai o tipo e o ID do link
+  // Ex: http://192.168.1.7:8080/obra/18 → ('obra', 18)
+  // Ex: http://192.168.1.7:8080/subsecao/5 → ('subsecao', 5)
+  ({String tipo, int id})? _extrairDoLink(String url) {
+    try {
+      final uri = Uri.parse(url);
+      final segmentos = uri.pathSegments;
+      // segmentos = ['obra', '18'] ou ['subsecao', '5']
+      if (segmentos.length >= 2) {
+        final tipo = segmentos[segmentos.length - 2]; // 'obra' ou 'subsecao'
+        final id = int.tryParse(segmentos.last);
+        if (id != null && (tipo == 'obra' || tipo == 'subsecao')) {
+          return (tipo: tipo, id: id);
+        }
+      }
+    } catch (_) {}
+    return null;
   }
 
-  Future<void> _carregar() async {
+  Future<void> _processarCodigo(String codigo) async {
+    if (_processando) return;
+    setState(() {
+      _processando = true;
+      codigoLido = codigo;
+    });
+
+    final extraido = _extrairDoLink(codigo);
+
+    if (extraido == null) {
+      // Não é um link do FastFVS, só mostra o código
+      setState(() => _processando = false);
+      return;
+    }
+
     try {
-      final dados = await widget.carregarQrCode();
-      if (!mounted) return;
-      setState(() {
-        _dados = dados;
-        _carregando = false;
-      });
+      if (extraido.tipo == 'obra') {
+        final obra = await _obraService.getObra(extraido.id);
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => PaginaObra(obra: obra)),
+        ).then((_) => setState(() {
+          codigoLido = null;
+          _processando = false;
+        }));
+      } else if (extraido.tipo == 'subsecao') {
+        // Busca a subseção, a obra pai e os dados de conformidade
+        // para abrir diretamente na página da subseção específica
+        final subsecaoService = SubsecaoService();
+        final subsecao = await subsecaoService.buscarSubsecao(extraido.id);
+        final obra = await _obraService.getObra(subsecao.obraId);
+        final conformidade = await subsecaoService.getConformidade(subsecao.id);
+        final dadosParticao = await subsecaoService.statusPresentesNasubsecao(
+          subsecao.id,
+          subsecao.nome,
+          conformidade,
+        );
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PaginaObra(obra: obra, subsecaoInicial: dadosParticao),
+          ),
+        ).then((_) => setState(() {
+          codigoLido = null;
+          _processando = false;
+        }));
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _erro = e.toString().replaceAll('Exception: ', '');
-        _carregando = false;
+        codigoLido = null;
+        _processando = false;
       });
-    }
-  }
-
-  Uint8List _decodarBase64(String base64String) {
-    final limpo = base64String.contains(',')
-        ? base64String.split(',').last
-        : base64String;
-    return base64Decode(limpo);
-  }
-
-  void _baixar(Uint8List bytes) {
-    if (kIsWeb) {
-      final blob = html.Blob([bytes], 'image/png');
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      final anchor = html.AnchorElement(href: url)
-        ..setAttribute('download', 'qrcode_${widget.titulo}.png')
-        ..click();
-      html.Url.revokeObjectUrl(url);
-    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pressione e segure a imagem para salvá-la.'),
-        ),
+        SnackBar(content: Text('Erro ao carregar: ${e.toString().replaceAll('Exception: ', '')}')),
       );
     }
   }
@@ -77,92 +107,92 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
     final cor = Theme.of(context).colorScheme;
 
     return PaginaBase(
-      paginaAberta: 0,
-      body: Column(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: double.infinity,
-            height: 100,
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(width: 2, color: cor.primary),
+      paginaAberta: 1,
+      body: kIsWeb
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.smartphone, size: 80, color: cor.onSecondary),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Leitura de QR Code",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: cor.onSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      "Esta funcionalidade está disponível apenas no aplicativo mobile.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 16, color: cor.onSecondary),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            child: Text(
-              widget.titulo,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontSize: 26,
-                    color: cor.onSecondary,
-                  ),
-            ),
-          ),
-          Expanded(
-            child: _carregando
-                ? const Center(child: CircularProgressIndicator())
-                : _erro.isNotEmpty
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: _processando
+                      ? const Center(child: CircularProgressIndicator())
+                      : MobileScanner(
+                          onDetect: (capture) {
+                            final codigo = capture.barcodes.first.rawValue;
+                            if (codigo != null && codigoLido == null) {
+                              _processarCodigo(codigo);
+                            }
+                          },
+                        ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  color: cor.primary,
+                  child: Column(
+                    children: [
+                      Text(
+                        codigoLido == null
+                            ? "Aponte a câmera para um QR Code"
+                            : _processando
+                                ? "Carregando..."
+                                : "Código não reconhecido",
+                        style: TextStyle(color: cor.onPrimary, fontSize: 16),
+                      ),
+                      if (codigoLido != null && !_processando) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          codigoLido!,
+                          style: TextStyle(
+                            color: cor.onPrimary,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () => setState(() {
+                            codigoLido = null;
+                            _processando = false;
+                          }),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cor.onPrimary,
+                          ),
                           child: Text(
-                            'Erro ao carregar QR Code:\n$_erro',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: Colors.red),
+                            "Ler outro",
+                            style: TextStyle(color: cor.onSecondary),
                           ),
                         ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 8),
-                            child: Text(
-                              _dados!.link,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: cor.primary,
-                                fontSize: 13,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Image.memory(
-                              _decodarBase64(_dados!.qrcode),
-                              width: 280,
-                              height: 280,
-                              fit: BoxFit.contain,
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(200, 50),
-                              backgroundColor: cor.primary,
-                            ),
-                            onPressed: () =>
-                                _baixar(_decodarBase64(_dados!.qrcode)),
-                            icon: Icon(Icons.download, color: cor.onPrimary),
-                            label: Text(
-                              'Baixar',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineLarge
-                                  ?.copyWith(
-                                    fontSize: 20,
-                                    color: cor.onPrimary,
-                                  ),
-                            ),
-                          ),
-                        ],
-                      ),
-          ),
-        ],
-      ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

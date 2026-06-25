@@ -20,9 +20,9 @@ import 'package:shimmer/shimmer.dart';
 
 class PaginaObra extends StatefulWidget {
   final Obra obra;
+  final DadosParticao? subsecaoInicial;
 
-
-  const PaginaObra({required this.obra, super.key});
+  const PaginaObra({required this.obra, this.subsecaoInicial, super.key});
 
   @override
   State<PaginaObra> createState() => PaginaObraState();
@@ -42,6 +42,7 @@ class PaginaObraState extends State<PaginaObra> {
   int fvsNaoConforme = 0;
   bool carregando = true;
   bool carregandoInfoObra = false;
+  bool _navegouParaInicial = false;
 
   final SubsecaoService subsecaoService = SubsecaoService();
   List<DadosParticao> dadosSubsecoesRaizes = [];
@@ -80,6 +81,19 @@ class PaginaObraState extends State<PaginaObra> {
       carregandoInfoObra = false;
       dadosSubsecoesRaizes = dadosSubsecoes;
     });
+
+    // Se vier de um QR Code de subseção, navega automaticamente para ela
+    if (widget.subsecaoInicial != null && !_navegouParaInicial) {
+      _navegouParaInicial = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          controladorNavegacao.currentState?.pushNamed(
+            '/particao',
+            arguments: widget.subsecaoInicial,
+          );
+        }
+      });
+    }
   }
 
   Future<void> _carregarDadosBackStage() async {
