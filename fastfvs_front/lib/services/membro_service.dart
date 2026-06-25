@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class MembroService {
   String get _baseUrl {
-    if (kIsWeb) return 'http://192.168.1.7:8080/api/membros';
+    if (kIsWeb) return 'http://192.168.3.105:8080/api/membros';
     if (Platform.isAndroid) return 'http://10.0.2.2:8080/api/membros';
     if (Platform.isIOS) return 'http://localhost:8080/api/membros';
     return 'http://192.168.3.105:8080/api/membros';

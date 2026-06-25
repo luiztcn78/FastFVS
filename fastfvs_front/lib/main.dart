@@ -12,8 +12,7 @@ final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final temSessao = await SessaoUsuario.recarregarSessaoSalva();
-  runApp(MyApp(rotaInicial: temSessao ? '/minhasObras' : '/Carregamento'));
+  runApp(const MyApp(rotaInicial: '/Carregamento'));
 }
 
 class MyApp extends StatelessWidget {

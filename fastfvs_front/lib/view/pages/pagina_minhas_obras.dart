@@ -23,7 +23,9 @@ class _PaginaMinhasObrasState extends State<PaginaMinhasObras> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     carregarObras();
+  });
   }
 
  Future<void> carregarObras() async {

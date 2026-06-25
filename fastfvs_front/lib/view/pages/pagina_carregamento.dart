@@ -1,6 +1,6 @@
+import 'package:fastfvs_front/services/sessao_usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:fastfvs_front/view/widgets/bolinhas_carregamento.dart';
-import 'package:fastfvs_front/view/pages/pagina_login.dart';
 
 class PaginaCarregamento extends StatefulWidget {
   const PaginaCarregamento({super.key});
@@ -17,13 +17,16 @@ class _PaginaCarregamentoState extends State<PaginaCarregamento> {
   }
 
   Future<void> _iniciarCarregamento() async {
-
-    await Future.delayed(const Duration(seconds: 10));
+    final results = await Future.wait([
+      SessaoUsuario.recarregarSessaoSalva(),
+      Future.delayed(const Duration(seconds: 30)),
+    ]);
+    final temSessao = results[0] as bool;
 
     if (mounted) {
-      Navigator.pushReplacement(
+      Navigator.pushReplacementNamed(
         context,
-        MaterialPageRoute(builder: (context) => const PaginaLogin()),
+        temSessao ? '/minhasObras' : '/login',
       );
     }
   }
