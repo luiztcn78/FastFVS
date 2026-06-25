@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html show AnchorElement, Url, Blob;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:fastfvs_front/models/compartilhamento_dto.dart';
 import 'package:fastfvs_front/view/pages/pagina_base.dart';
+import 'package:universal_html/html.dart' as html;
 
 class PaginaQrCode extends StatefulWidget {
-  // null = QR Code da obra, não-null = QR Code da subseção
   final Future<CompartilhamentoDTO> Function() carregarQrCode;
   final String titulo;
 
@@ -50,9 +48,7 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
     }
   }
 
-  // Converte o base64 em bytes para exibir e baixar
   Uint8List _decodarBase64(String base64String) {
-    // Remove prefixo "data:image/png;base64," se vier com ele
     final limpo = base64String.contains(',')
         ? base64String.split(',').last
         : base64String;
@@ -60,24 +56,21 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
   }
 
   void _baixar(Uint8List bytes) {
-  if (kIsWeb) {
-    // No web usa dart:html para forçar download
-    final blob = html.Blob([bytes], 'image/png');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-      
-    html.AnchorElement(href: url)
-      ..setAttribute('download', 'qrcode_${widget.titulo}.png')
-      ..click();
-        
-    html.Url.revokeObjectUrl(url);
-  } else {
-    // No mobile mostra snackbar orientando salvar pela imagem longa
-    // Para salvar de verdade no mobile adicione o pacote image_gallery_saver
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pressione e segure a imagem para salvá-la.')),
-    );
+    if (kIsWeb) {
+      final blob = html.Blob([bytes], 'image/png');
+      final url = html.Url.createObjectUrlFromBlob(blob);
+      final anchor = html.AnchorElement(href: url)
+        ..setAttribute('download', 'qrcode_${widget.titulo}.png')
+        ..click();
+      html.Url.revokeObjectUrl(url);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pressione e segure a imagem para salvá-la.'),
+        ),
+      );
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +80,6 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
       paginaAberta: 0,
       body: Column(
         children: [
-          // Cabeçalho com o nome
           Container(
             alignment: Alignment.center,
             width: double.infinity,
@@ -106,7 +98,6 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
                   ),
             ),
           ),
-
           Expanded(
             child: _carregando
                 ? const Center(child: CircularProgressIndicator())
@@ -124,9 +115,9 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Link clicável
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 8),
                             child: Text(
                               _dados!.link,
                               textAlign: TextAlign.center,
@@ -137,10 +128,7 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 12),
-
-                          // Imagem do QR Code em base64
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             child: Image.memory(
@@ -150,20 +138,21 @@ class _PaginaQrCodeState extends State<PaginaQrCode> {
                               fit: BoxFit.contain,
                             ),
                           ),
-
                           const SizedBox(height: 30),
-
-                          // Botão de download
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               minimumSize: const Size(200, 50),
                               backgroundColor: cor.primary,
                             ),
-                            onPressed: () => _baixar(_decodarBase64(_dados!.qrcode)),
+                            onPressed: () =>
+                                _baixar(_decodarBase64(_dados!.qrcode)),
                             icon: Icon(Icons.download, color: cor.onPrimary),
                             label: Text(
                               'Baixar',
-                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineLarge
+                                  ?.copyWith(
                                     fontSize: 20,
                                     color: cor.onPrimary,
                                   ),

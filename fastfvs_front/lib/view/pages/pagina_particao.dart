@@ -15,6 +15,7 @@ class PaginaParticao extends StatefulWidget {
   final VoidCallback? onFvsModificada;
   final VoidCallback? onNomeModificado;
   final VoidCallback? onSubsecaoExcluida;
+  
 
   const PaginaParticao({
     super.key,
